@@ -52,7 +52,15 @@ function App() {
         </div>
       </div>
 
-      <h1>Food Delivery and Dine-Out Platform</h1>
+      <div className="app-header">
+        <div className="app-logo">🍽️</div>
+        <div className="app-title-block">
+          <h1>Food Delivery and Dine-Out Platform</h1>
+          <p className="app-subtitle">
+            Manage restaurants, menu, orders, and reviews in one dashboard
+          </p>
+        </div>
+      </div>
 
       <nav className="navbar">
         <div className="nav-group">

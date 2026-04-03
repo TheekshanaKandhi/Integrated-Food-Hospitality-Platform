@@ -55,6 +55,7 @@ function RestaurantDetails() {
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setMessage(`${item.name} added to cart`);
+    setTimeout(() => setMessage(""), 2500);
   };
 
   if (!restaurant) {
@@ -80,7 +81,7 @@ function RestaurantDetails() {
         </div>
       </div>
 
-      {message && <p className="success-message">{message}</p>}
+      {message && <div className="toast">{message}</div>}
 
       <section className="restaurant-menu-section">
         <h3>Menu</h3>

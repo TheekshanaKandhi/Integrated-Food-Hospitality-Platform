@@ -55,6 +55,7 @@ function Menu() {
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setMessage(`${item.name} added to cart`);
+    setTimeout(() => setMessage(""), 2500);
   };
 
   const menuImages = [
@@ -78,7 +79,7 @@ function Menu() {
         />
       </div>
 
-      {message && <p className="success-message">{message}</p>}
+      {message && <div className="toast">{message}</div>}
 
       {filteredMenuItems.length === 0 ? (
         <p>No menu items found.</p>
@@ -97,7 +98,9 @@ function Menu() {
                   <span>₹{item.price}</span>
                   <span>{item.restaurant.name}</span>
                 </div>
-                <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
+                <button onClick={() => handleAddToCart(item)}>
+                  Add to Cart
+                </button>
               </div>
             </div>
           ))}

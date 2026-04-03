@@ -12,6 +12,7 @@ import AddRestaurant from "./pages/AddRestaurant";
 import AddMenu from "./pages/AddMenu";
 import AddOrder from "./pages/AddOrder";
 import AddReview from "./pages/AddReview";
+import PrivateRoute from "./pages/PrivateRoute";
 
 function App() {
   const navigate = useNavigate();
@@ -52,15 +53,79 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/protected" element={<Protected />} />
-          <Route path="/restaurants" element={<Restaurants />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/add-restaurant" element={<AddRestaurant />} />
-          <Route path="/add-menu" element={<AddMenu />} />
-          <Route path="/add-order" element={<AddOrder />} />
-          <Route path="/add-review" element={<AddReview />} />
+
+          <Route
+            path="/protected"
+            element={
+              <PrivateRoute>
+                <Protected />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/restaurants"
+            element={
+              <PrivateRoute>
+                <Restaurants />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/menu"
+            element={
+              <PrivateRoute>
+                <Menu />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <PrivateRoute>
+                <Orders />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reviews"
+            element={
+              <PrivateRoute>
+                <Reviews />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-restaurant"
+            element={
+              <PrivateRoute>
+                <AddRestaurant />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-menu"
+            element={
+              <PrivateRoute>
+                <AddMenu />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-order"
+            element={
+              <PrivateRoute>
+                <AddOrder />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-review"
+            element={
+              <PrivateRoute>
+                <AddReview />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </div>
     </div>

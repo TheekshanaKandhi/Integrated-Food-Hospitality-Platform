@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AddReview() {
@@ -10,7 +10,37 @@ function AddReview() {
     comment: ""
   });
 
+  const [users, setUsers] = useState([]);
+  const [restaurants, setRestaurants] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
+        setRestaurants(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchOrders = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:5000/api/orders");
+        setOrders(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchRestaurants();
+    fetchOrders();
+
+    setUsers([
+      { _id: "69cfbc273e4889c0e6a6ffd8", name: "Theeksh" }
+    ]);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -47,33 +77,43 @@ function AddReview() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label>User ID:</label>
-          <input
-            type="text"
-            name="user"
-            value={formData.user}
-            onChange={handleChange}
-          />
+          <label>User:</label>
+          <select name="user" value={formData.user} onChange={handleChange}>
+            <option value="">Select User</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
-          <label>Restaurant ID:</label>
-          <input
-            type="text"
+          <label>Restaurant:</label>
+          <select
             name="restaurant"
             value={formData.restaurant}
             onChange={handleChange}
-          />
+          >
+            <option value="">Select Restaurant</option>
+            {restaurants.map((restaurant) => (
+              <option key={restaurant._id} value={restaurant._id}>
+                {restaurant.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
-          <label>Order ID:</label>
-          <input
-            type="text"
-            name="order"
-            value={formData.order}
-            onChange={handleChange}
-          />
+          <label>Order:</label>
+          <select name="order" value={formData.order} onChange={handleChange}>
+            <option value="">Select Order</option>
+            {orders.map((order) => (
+              <option key={order._id} value={order._id}>
+                {order.restaurant.name} - ₹{order.totalPrice} - {order.status}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AddMenu() {
@@ -10,7 +10,21 @@ function AddMenu() {
     isAvailable: true
   });
 
+  const [restaurants, setRestaurants] = useState([]);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
+        setRestaurants(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchRestaurants();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -47,13 +61,19 @@ function AddMenu() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Restaurant ID:</label>
-          <input
-            type="text"
+          <label>Restaurant:</label>
+          <select
             name="restaurant"
             value={formData.restaurant}
             onChange={handleChange}
-          />
+          >
+            <option value="">Select Restaurant</option>
+            {restaurants.map((restaurant) => (
+              <option key={restaurant._id} value={restaurant._id}>
+                {restaurant.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

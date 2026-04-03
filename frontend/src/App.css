@@ -786,3 +786,33 @@ p {
   background: #1d3557;
   color: white;
 }
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.hero-search {
+  background: white;
+  padding: 10px;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.hero-search input {
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+
+.hero-search button {
+  background: #e63946;
+  border-radius: 12px;
+  padding: 12px 20px;
+}
+
+.hero-search button:hover {
+  background: #c92f3a;
+}

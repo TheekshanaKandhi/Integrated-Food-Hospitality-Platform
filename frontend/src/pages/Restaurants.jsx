@@ -17,6 +17,13 @@ function Restaurants() {
     fetchRestaurants();
   }, []);
 
+  const restaurantImages = [
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80"
+  ];
+
   return (
     <div>
       <h2>Restaurants</h2>
@@ -25,13 +32,24 @@ function Restaurants() {
       {restaurants.length === 0 ? (
         <p>No restaurants found.</p>
       ) : (
-        <ul>
-          {restaurants.map((restaurant) => (
-            <li key={restaurant._id}>
-              <strong>{restaurant.name}</strong> - {restaurant.cuisine} - {restaurant.address} - ID: {restaurant._id}
-            </li>
+        <div className="restaurant-grid">
+          {restaurants.map((restaurant, index) => (
+            <div className="restaurant-card" key={restaurant._id}>
+              <img
+                src={restaurantImages[index % restaurantImages.length]}
+                alt={restaurant.name}
+              />
+              <div className="restaurant-card-body">
+                <h3>{restaurant.name}</h3>
+                <p>{restaurant.cuisine}</p>
+                <div className="restaurant-meta">
+                  <span>⭐ {restaurant.rating || 4.2}</span>
+                  <span>{restaurant.address}</span>
+                </div>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

@@ -404,3 +404,49 @@ p {
   text-decoration: none;
   color: inherit;
 }
+.restaurant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.restaurant-card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.restaurant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+}
+
+.restaurant-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+}
+
+.restaurant-card-body {
+  padding: 16px;
+}
+
+.restaurant-card-body h3 {
+  margin-bottom: 6px;
+  color: #1d3557;
+}
+
+.restaurant-card-body p {
+  margin-bottom: 10px;
+  color: #6b7280;
+}
+
+.restaurant-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #444;
+}

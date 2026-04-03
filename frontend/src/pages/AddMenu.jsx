@@ -57,7 +57,8 @@ function AddMenu() {
 
   return (
     <div>
-      <h2>Add Menu Page</h2>
+      <h2>Add Menu Item</h2>
+      <p>Create a new food item and link it to a restaurant.</p>
 
       <form onSubmit={handleSubmit}>
         <div>

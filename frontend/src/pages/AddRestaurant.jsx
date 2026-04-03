@@ -40,7 +40,8 @@ function AddRestaurant() {
 
   return (
     <div>
-      <h2>Add Restaurant Page</h2>
+      <h2>Add Restaurant</h2>
+      <p>Create a new restaurant entry for the platform.</p>
 
       <form onSubmit={handleSubmit}>
         <div>

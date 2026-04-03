@@ -112,7 +112,8 @@ function AddOrder() {
 
   return (
     <div>
-      <h2>Add Order Page</h2>
+      <h2>Add Order</h2>
+      <p>Create a new customer order by selecting a user, restaurant, and menu item.</p>
 
       <form onSubmit={handleSubmit}>
         <div>

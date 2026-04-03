@@ -96,7 +96,8 @@ function AddReview() {
 
   return (
     <div>
-      <h2>Add Review Page</h2>
+      <h2>Add Review</h2>
+      <p>Submit customer feedback and rating for a completed restaurant order.</p>
 
       <form onSubmit={handleSubmit}>
         <div>

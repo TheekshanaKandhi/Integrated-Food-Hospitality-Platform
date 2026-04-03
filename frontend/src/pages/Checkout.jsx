@@ -1,0 +1,168 @@
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+
+function Checkout() {
+  const [cartItems, setCartItems] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [formData, setFormData] = useState({
+    customerName: "",
+    address: "",
+    paymentMethod: "Cash on Delivery"
+  });
+  const [message, setMessage] = useState("");
+
+  const userEmail = localStorage.getItem("userEmail");
+
+  useEffect(() => {
+    const loadData = async () => {
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCartItems(storedCart);
+
+      try {
+        const res = await axios.get("http://127.0.0.1:5000/api/auth/users");
+        setUsers(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const totalAmount = useMemo(() => {
+    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }, [cartItems]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handlePlaceOrder = async (e) => {
+    e.preventDefault();
+
+    if (cartItems.length === 0) {
+      setMessage("Your cart is empty");
+      return;
+    }
+
+    if (!formData.customerName || !formData.address) {
+      setMessage("Please fill all checkout details");
+      return;
+    }
+
+    const loggedInUser = users.find((user) => user.email === userEmail);
+
+    if (!loggedInUser) {
+      setMessage("Logged in user not found");
+      return;
+    }
+
+    const restaurantId =
+      typeof cartItems[0].restaurant === "object"
+        ? cartItems[0].restaurant._id
+        : cartItems[0].restaurant;
+
+    const items = cartItems.map((item) => ({
+      menuItem: item._id,
+      quantity: item.quantity
+    }));
+
+    try {
+      await axios.post("http://127.0.0.1:5000/api/orders", {
+        user: loggedInUser._id,
+        restaurant: restaurantId,
+        items,
+        totalPrice: totalAmount
+      });
+
+      localStorage.removeItem("cart");
+      setCartItems([]);
+      setMessage("Order placed successfully");
+
+      setFormData({
+        customerName: "",
+        address: "",
+        paymentMethod: "Cash on Delivery"
+      });
+    } catch (error) {
+      setMessage(error.response?.data?.message || error.message || "Failed to place order");
+    }
+  };
+
+  return (
+    <div>
+      <h2>Checkout</h2>
+      <p>Confirm your delivery details and place the order.</p>
+
+      {message && <p>{message}</p>}
+
+      {cartItems.length === 0 ? (
+        <p>No items in cart.</p>
+      ) : (
+        <div className="checkout-grid">
+          <div className="checkout-form-box">
+            <form onSubmit={handlePlaceOrder}>
+              <div>
+                <label>Customer Name:</label>
+                <input
+                  type="text"
+                  name="customerName"
+                  value={formData.customerName}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Delivery Address:</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Payment Method:</label>
+                <select
+                  name="paymentMethod"
+                  value={formData.paymentMethod}
+                  onChange={handleChange}
+                >
+                  <option>Cash on Delivery</option>
+                  <option>UPI</option>
+                  <option>Card</option>
+                </select>
+              </div>
+
+              <button type="submit">Place Final Order</button>
+            </form>
+          </div>
+
+          <div className="checkout-summary">
+            <h3>Order Summary</h3>
+
+            {cartItems.map((item) => (
+              <div key={item._id} className="checkout-item">
+                <p>
+                  <strong>{item.name}</strong> × {item.quantity}
+                </p>
+                <p>₹{item.price * item.quantity}</p>
+              </div>
+            ))}
+
+            <hr />
+            <p>
+              <strong>Total Amount: ₹{totalAmount}</strong>
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Checkout;

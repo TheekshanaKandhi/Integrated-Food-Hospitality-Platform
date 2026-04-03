@@ -7,13 +7,14 @@ import Protected from "./pages/Protected";
 import Restaurants from "./pages/Restaurants";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Menu from "./pages/Menu";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Reviews from "./pages/Reviews";
 import AddRestaurant from "./pages/AddRestaurant";
 import AddMenu from "./pages/AddMenu";
 import AddOrder from "./pages/AddOrder";
 import AddReview from "./pages/AddReview";
-import Cart from "./pages/Cart";
 import PrivateRoute from "./pages/PrivateRoute";
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
           <Link to="/restaurants">Restaurants</Link>
           <Link to="/menu">Menu</Link>
           <Link to="/cart">Cart</Link>
+          <Link to="/checkout">Checkout</Link>
           <Link to="/orders">Orders</Link>
           <Link to="/reviews">Reviews</Link>
         </div>
@@ -131,6 +133,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Cart />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <PrivateRoute>
+                <Checkout />
               </PrivateRoute>
             }
           />

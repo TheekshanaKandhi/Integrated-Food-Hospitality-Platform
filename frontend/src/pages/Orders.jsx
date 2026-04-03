@@ -8,7 +8,8 @@ function Orders() {
     const fetchOrders = async () => {
       try {
         const res = await axios.get("http://127.0.0.1:5000/api/orders");
-        setOrders(res.data);
+        const reversedOrders = [...res.data].reverse();
+        setOrders(reversedOrders);
       } catch (error) {
         console.log(error);
       }
@@ -38,6 +39,15 @@ function Orders() {
               <p><strong>Customer:</strong> {order.user.name}</p>
               <p><strong>Total:</strong> ₹{order.totalPrice}</p>
               <p><strong>Order ID:</strong> {order._id}</p>
+
+              <div className="order-items">
+                <h4>Items</h4>
+                {order.items.map((item) => (
+                  <p key={item._id}>
+                    {item.menuItem?.name || "Menu Item"} × {item.quantity}
+                  </p>
+                ))}
+              </div>
             </div>
           ))}
         </div>

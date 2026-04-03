@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -34,7 +36,11 @@ function Restaurants() {
       ) : (
         <div className="restaurant-grid">
           {restaurants.map((restaurant, index) => (
-            <div className="restaurant-card" key={restaurant._id}>
+            <div
+              className="restaurant-card clickable-card"
+              key={restaurant._id}
+              onClick={() => navigate(`/restaurants/${restaurant._id}`)}
+            >
               <img
                 src={restaurantImages[index % restaurantImages.length]}
                 alt={restaurant.name}

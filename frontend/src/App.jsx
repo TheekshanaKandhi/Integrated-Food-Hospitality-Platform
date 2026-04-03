@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Protected from "./pages/Protected";
 import Restaurants from "./pages/Restaurants";
+import RestaurantDetails from "./pages/RestaurantDetails";
 import Menu from "./pages/Menu";
 import Orders from "./pages/Orders";
 import Reviews from "./pages/Reviews";
@@ -104,6 +105,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Restaurants />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/restaurants/:id"
+            element={
+              <PrivateRoute>
+                <RestaurantDetails />
               </PrivateRoute>
             }
           />

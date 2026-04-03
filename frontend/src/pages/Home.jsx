@@ -11,6 +11,7 @@ function Home() {
   });
 
   const [restaurants, setRestaurants] = useState([]);
+  const [heroSearch, setHeroSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +51,17 @@ function Home() {
     navigate(`/menu?search=${encodeURIComponent(category)}`);
   };
 
+  const handleHeroSearch = () => {
+    if (!heroSearch.trim()) return;
+    navigate(`/menu?search=${encodeURIComponent(heroSearch.trim())}`);
+  };
+
+  const handleHeroKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleHeroSearch();
+    }
+  };
+
   return (
     <div>
       <section className="hero-section">
@@ -61,8 +73,14 @@ function Home() {
           </p>
 
           <div className="hero-search">
-            <input type="text" placeholder="Search for restaurant, cuisine or dish" />
-            <button>Search</button>
+            <input
+              type="text"
+              placeholder="Search for restaurant, cuisine or dish"
+              value={heroSearch}
+              onChange={(e) => setHeroSearch(e.target.value)}
+              onKeyDown={handleHeroKeyDown}
+            />
+            <button onClick={handleHeroSearch}>Search</button>
           </div>
         </div>
 

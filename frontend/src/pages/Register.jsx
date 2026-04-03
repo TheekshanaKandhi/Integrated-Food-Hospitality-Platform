@@ -24,54 +24,56 @@ function Register() {
       const res = await axios.post("http://127.0.0.1:5000/api/auth/register", formData);
       setMessage(res.data.message);
     } catch (error) {
-      console.log(error);
       setMessage(error.response?.data?.message || error.message || "Registration failed");
     }
   };
 
   return (
-    <div>
-      <h2>Register Page</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Create Account</h2>
+        <p>Sign up to explore restaurants, menus, and orders.</p>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>Name:</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
+          <div>
+            <label>Email:</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
+          <div>
+            <label>Password:</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
 
-        <button type="submit">Register</button>
-      </form>
+          <button type="submit">Register</button>
+        </form>
 
-      {message && (
-  <p className={message.toLowerCase().includes("successful") ? "success-message" : "error-message"}>
-    {message}
-  </p>
-)}
+        {message && (
+          <p className={message.toLowerCase().includes("successful") ? "success-message" : "error-message"}>
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

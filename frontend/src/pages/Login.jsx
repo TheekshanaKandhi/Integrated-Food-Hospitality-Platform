@@ -30,38 +30,41 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login Page</h2>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Login</h2>
+        <p>Access your account to continue ordering food.</p>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>Email:</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
+          <div>
+            <label>Password:</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
 
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit">Login</button>
+        </form>
 
-      {message && (
-  <p className={message.toLowerCase().includes("successful") ? "success-message" : "error-message"}>
-    {message}
-  </p>
-)}
+        {message && (
+          <p className={message.toLowerCase().includes("successful") ? "success-message" : "error-message"}>
+            {message}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

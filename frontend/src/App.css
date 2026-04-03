@@ -191,3 +191,38 @@ p {
 .logout-btn:hover {
   background: #c92f3a;
 }
+.navbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #1d3557, #457b9d);
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-bottom: 24px;
+}
+
+.nav-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.nav-group a {
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 10px 16px;
+  border-radius: 999px;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.nav-group a:hover {
+  background: white;
+  color: #1d3557;
+  transform: translateY(-2px);
+}

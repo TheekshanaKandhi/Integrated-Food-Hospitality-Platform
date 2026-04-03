@@ -86,7 +86,7 @@ function Home() {
         <div className="featured-grid">
           {restaurants.map((restaurant, index) => (
             <Link
-              to="/restaurants"
+              to={`/restaurants/${restaurant._id}`}
               className="featured-card-link"
               key={restaurant._id}
             >

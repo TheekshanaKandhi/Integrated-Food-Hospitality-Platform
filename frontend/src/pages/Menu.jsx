@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 function Menu() {
   const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const searchValue = searchParams.get("search") || "";
+    setSearchTerm(searchValue);
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchMenuItems = async () => {

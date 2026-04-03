@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Home() {
@@ -11,6 +11,7 @@ function Home() {
   });
 
   const [restaurants, setRestaurants] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +46,10 @@ function Home() {
     "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80"
   ];
 
+  const goToCategory = (category) => {
+    navigate(`/menu?search=${encodeURIComponent(category)}`);
+  };
+
   return (
     <div>
       <section className="hero-section">
@@ -72,12 +77,12 @@ function Home() {
       <section className="categories-section">
         <h3>Popular Categories</h3>
         <div className="categories-grid">
-          <div className="category-card">🍚 Biryani</div>
-          <div className="category-card">🍕 Pizza</div>
-          <div className="category-card">🍔 Burgers</div>
-          <div className="category-card">🥘 South Indian</div>
-          <div className="category-card">🍰 Desserts</div>
-          <div className="category-card">🥤 Beverages</div>
+          <div className="category-card" onClick={() => goToCategory("Biryani")}>🍚 Biryani</div>
+          <div className="category-card" onClick={() => goToCategory("Pizza")}>🍕 Pizza</div>
+          <div className="category-card" onClick={() => goToCategory("Burger")}>🍔 Burgers</div>
+          <div className="category-card" onClick={() => goToCategory("South Indian")}>🥘 South Indian</div>
+          <div className="category-card" onClick={() => goToCategory("Dessert")}>🍰 Desserts</div>
+          <div className="category-card" onClick={() => goToCategory("Beverage")}>🥤 Beverages</div>
         </div>
       </section>
 

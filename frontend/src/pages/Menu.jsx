@@ -27,7 +27,7 @@ function Menu() {
         <ul>
           {menuItems.map((item) => (
             <li key={item._id}>
-              <strong>{item.name}</strong> - ₹{item.price} - {item.category} - {item.restaurant.name}
+              <strong>{item.name}</strong> - ₹{item.price} - {item.category} - {item.restaurant.name} - ID: {item._id}
             </li>
           ))}
         </ul>

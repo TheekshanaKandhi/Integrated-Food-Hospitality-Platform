@@ -27,7 +27,7 @@ function Restaurants() {
         <ul>
           {restaurants.map((restaurant) => (
             <li key={restaurant._id}>
-              <strong>{restaurant.name}</strong> - {restaurant.cuisine} - {restaurant.address}
+              <strong>{restaurant.name}</strong> - {restaurant.cuisine} - {restaurant.address} - ID: {restaurant._id}
             </li>
           ))}
         </ul>

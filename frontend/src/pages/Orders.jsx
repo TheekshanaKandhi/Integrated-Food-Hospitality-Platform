@@ -28,7 +28,7 @@ function Orders() {
           {orders.map((order) => (
             <li key={order._id}>
               <strong>{order.user.name}</strong> ordered from{" "}
-              <strong>{order.restaurant.name}</strong> - ₹{order.totalPrice} - {order.status}
+              <strong>{order.restaurant.name}</strong> - ₹{order.totalPrice} - {order.status} - ID: {order._id}
             </li>
           ))}
         </ul>

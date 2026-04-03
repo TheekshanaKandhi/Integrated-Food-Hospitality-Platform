@@ -537,3 +537,42 @@ p {
   background: #d4edda;
   color: #155724;
 }
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.review-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.review-top h3 {
+  color: #1d3557;
+}
+
+.review-rating {
+  background: #fff3cd;
+  color: #856404;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.review-comment {
+  font-style: italic;
+  color: #444;
+  margin: 12px 0;
+}

@@ -25,15 +25,20 @@ function Reviews() {
       {reviews.length === 0 ? (
         <p>No reviews found.</p>
       ) : (
-        <ul>
+        <div className="reviews-grid">
           {reviews.map((review) => (
-            <li key={review._id}>
-              <strong>{review.user.name}</strong> reviewed{" "}
-              <strong>{review.restaurant.name}</strong> - {review.rating}/5 -{" "}
-              {review.comment}
-            </li>
+            <div className="review-card" key={review._id}>
+              <div className="review-top">
+                <h3>{review.restaurant.name}</h3>
+                <span className="review-rating">⭐ {review.rating}/5</span>
+              </div>
+
+              <p><strong>Customer:</strong> {review.user.name}</p>
+              <p className="review-comment">“{review.comment}”</p>
+              <p><strong>Order:</strong> ₹{review.order.totalPrice} - {review.order.status}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

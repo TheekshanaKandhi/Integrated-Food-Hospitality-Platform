@@ -64,6 +64,9 @@ function Login() {
             {message}
           </p>
         )}
+        <p className="auth-switch-text">
+  Don&apos;t have an account? <a href="/register">Create one</a>
+</p>
       </div>
     </div>
   );

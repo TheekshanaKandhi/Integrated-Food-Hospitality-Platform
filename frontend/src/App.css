@@ -947,3 +947,18 @@ p {
   margin-bottom: 18px;
   color: #6b7280;
 }
+.auth-switch-text {
+  margin-top: 16px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.auth-switch-text a {
+  color: #e63946;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-switch-text a:hover {
+  text-decoration: underline;
+}

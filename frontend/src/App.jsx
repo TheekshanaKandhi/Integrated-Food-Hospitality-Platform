@@ -1,5 +1,6 @@
 import "./App.css";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -21,6 +22,24 @@ function App() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userEmail = localStorage.getItem("userEmail");
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      setCartCount(totalItems);
+    };
+
+    updateCartCount();
+    window.addEventListener("storage", updateCartCount);
+    window.addEventListener("click", updateCartCount);
+
+    return () => {
+      window.removeEventListener("storage", updateCartCount);
+      window.removeEventListener("click", updateCartCount);
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -76,7 +95,7 @@ function App() {
         <div className="nav-group">
           <Link to="/restaurants">Restaurants</Link>
           <Link to="/menu">Menu</Link>
-          <Link to="/cart">Cart</Link>
+          <Link to="/cart">Cart ({cartCount})</Link>
           <Link to="/checkout">Checkout</Link>
           <Link to="/orders">Orders</Link>
           <Link to="/reviews">Reviews</Link>

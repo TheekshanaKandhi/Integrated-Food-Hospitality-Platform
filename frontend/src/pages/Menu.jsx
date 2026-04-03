@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 function Menu() {
   const [menuItems, setMenuItems] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -17,6 +18,16 @@ function Menu() {
     fetchMenuItems();
   }, []);
 
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      return (
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  }, [menuItems, searchTerm]);
+
   const menuImages = [
     "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1604908176997-431da2f1b0f9?auto=format&fit=crop&w=900&q=80",
@@ -29,11 +40,20 @@ function Menu() {
       <h2>Menu Items</h2>
       <p>View all food items available across restaurants.</p>
 
-      {menuItems.length === 0 ? (
+      <div className="restaurant-filter-bar">
+        <input
+          type="text"
+          placeholder="Search by dish, category, or restaurant"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {filteredMenuItems.length === 0 ? (
         <p>No menu items found.</p>
       ) : (
         <div className="menu-grid">
-          {menuItems.map((item, index) => (
+          {filteredMenuItems.map((item, index) => (
             <div className="menu-card" key={item._id}>
               <img
                 src={menuImages[index % menuImages.length]}

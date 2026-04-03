@@ -18,6 +18,21 @@ function Orders() {
     fetchOrders();
   }, []);
 
+  const getStep = (status) => {
+    switch (status.toLowerCase()) {
+      case "placed":
+        return 1;
+      case "confirmed":
+        return 2;
+      case "preparing":
+        return 3;
+      case "delivered":
+        return 4;
+      default:
+        return 1;
+    }
+  };
+
   return (
     <div>
       <h2>Orders</h2>
@@ -27,29 +42,40 @@ function Orders() {
         <p>No orders found.</p>
       ) : (
         <div className="orders-grid">
-          {orders.map((order) => (
-            <div className="order-card" key={order._id}>
-              <div className="order-top">
-                <h3>{order.restaurant.name}</h3>
-                <span className={`order-status ${order.status.toLowerCase()}`}>
-                  {order.status}
-                </span>
-              </div>
+          {orders.map((order) => {
+            const currentStep = getStep(order.status);
 
-              <p><strong>Customer:</strong> {order.user.name}</p>
-              <p><strong>Total:</strong> ₹{order.totalPrice}</p>
-              <p><strong>Order ID:</strong> {order._id}</p>
+            return (
+              <div className="order-card" key={order._id}>
+                <div className="order-top">
+                  <h3>{order.restaurant.name}</h3>
+                  <span className={`order-status ${order.status.toLowerCase()}`}>
+                    {order.status}
+                  </span>
+                </div>
 
-              <div className="order-items">
-                <h4>Items</h4>
-                {order.items.map((item) => (
-                  <p key={item._id}>
-                    {item.menuItem?.name || "Menu Item"} × {item.quantity}
-                  </p>
-                ))}
+                <p><strong>Customer:</strong> {order.user.name}</p>
+                <p><strong>Total:</strong> ₹{order.totalPrice}</p>
+                <p><strong>Order ID:</strong> {order._id}</p>
+
+                <div className="order-progress">
+                  <div className={`progress-step ${currentStep >= 1 ? "active" : ""}`}>Placed</div>
+                  <div className={`progress-step ${currentStep >= 2 ? "active" : ""}`}>Confirmed</div>
+                  <div className={`progress-step ${currentStep >= 3 ? "active" : ""}`}>Preparing</div>
+                  <div className={`progress-step ${currentStep >= 4 ? "active" : ""}`}>Delivered</div>
+                </div>
+
+                <div className="order-items">
+                  <h4>Items</h4>
+                  {order.items.map((item) => (
+                    <p key={item._id}>
+                      {item.menuItem?.name || "Menu Item"} × {item.quantity}
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

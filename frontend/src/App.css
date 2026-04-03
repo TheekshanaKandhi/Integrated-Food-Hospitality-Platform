@@ -764,3 +764,25 @@ p {
 .cart-summary button {
   margin-top: 14px;
 }
+.order-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+.progress-step {
+  background: #eef2f7;
+  color: #6b7280;
+  padding: 8px 10px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.progress-step.active {
+  background: #1d3557;
+  color: white;
+}

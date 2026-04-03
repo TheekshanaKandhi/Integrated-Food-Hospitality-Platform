@@ -25,14 +25,22 @@ function Orders() {
       {orders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
-        <ul>
+        <div className="orders-grid">
           {orders.map((order) => (
-            <li key={order._id}>
-              <strong>{order.user.name}</strong> ordered from{" "}
-              <strong>{order.restaurant.name}</strong> - ₹{order.totalPrice} - {order.status} - ID: {order._id}
-            </li>
+            <div className="order-card" key={order._id}>
+              <div className="order-top">
+                <h3>{order.restaurant.name}</h3>
+                <span className={`order-status ${order.status.toLowerCase()}`}>
+                  {order.status}
+                </span>
+              </div>
+
+              <p><strong>Customer:</strong> {order.user.name}</p>
+              <p><strong>Total:</strong> ₹{order.totalPrice}</p>
+              <p><strong>Order ID:</strong> {order._id}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

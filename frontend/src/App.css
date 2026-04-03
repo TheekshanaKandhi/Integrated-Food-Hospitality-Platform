@@ -496,3 +496,44 @@ p {
   font-size: 14px;
   color: #444;
 }
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.order-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.order-top h3 {
+  color: #1d3557;
+}
+
+.order-status {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.order-status.placed {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.order-status.delivered {
+  background: #d4edda;
+  color: #155724;
+}

@@ -869,3 +869,20 @@ p {
   border-radius: 12px;
   padding: 12px 18px;
 }
+.featured-card,
+.restaurant-card,
+.menu-card {
+  overflow: hidden;
+}
+
+.featured-card img,
+.restaurant-card img,
+.menu-card img {
+  transition: transform 0.35s ease;
+}
+
+.featured-card:hover img,
+.restaurant-card:hover img,
+.menu-card:hover img {
+  transform: scale(1.05);
+}

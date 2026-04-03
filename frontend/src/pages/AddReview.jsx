@@ -16,6 +16,15 @@ function AddReview() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:5000/api/auth/users");
+        setUsers(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     const fetchRestaurants = async () => {
       try {
         const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
@@ -34,12 +43,9 @@ function AddReview() {
       }
     };
 
+    fetchUsers();
     fetchRestaurants();
     fetchOrders();
-
-    setUsers([
-      { _id: "69cfbc273e4889c0e6a6ffd8", name: "Theeksh" }
-    ]);
   }, []);
 
   const handleChange = (e) => {
@@ -82,7 +88,7 @@ function AddReview() {
             <option value="">Select User</option>
             {users.map((user) => (
               <option key={user._id} value={user._id}>
-                {user.name}
+                {user.name} - {user.email}
               </option>
             ))}
           </select>

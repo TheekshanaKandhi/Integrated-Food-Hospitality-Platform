@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -20,6 +20,7 @@ import PrivateRoute from "./pages/PrivateRoute";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("token");
   const userEmail = localStorage.getItem("userEmail");
   const [cartCount, setCartCount] = useState(0);
@@ -33,13 +34,11 @@ function App() {
 
     updateCartCount();
     window.addEventListener("storage", updateCartCount);
-    window.addEventListener("click", updateCartCount);
 
     return () => {
       window.removeEventListener("storage", updateCartCount);
-      window.removeEventListener("click", updateCartCount);
     };
-  }, []);
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

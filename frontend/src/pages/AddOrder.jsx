@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 function AddOrder() {
@@ -6,8 +6,7 @@ function AddOrder() {
     user: "",
     restaurant: "",
     menuItem: "",
-    quantity: "",
-    totalPrice: ""
+    quantity: ""
   });
 
   const [users, setUsers] = useState([]);
@@ -48,10 +47,37 @@ function AddOrder() {
     fetchMenuItems();
   }, []);
 
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter(
+      (item) => item.restaurant._id === formData.restaurant
+    );
+  }, [menuItems, formData.restaurant]);
+
+  const selectedMenuItem = filteredMenuItems.find(
+    (item) => item._id === formData.menuItem
+  );
+
+  const totalPrice =
+    selectedMenuItem && formData.quantity
+      ? selectedMenuItem.price * Number(formData.quantity)
+      : 0;
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "restaurant") {
+      setFormData({
+        ...formData,
+        restaurant: value,
+        menuItem: "",
+        quantity: ""
+      });
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -68,7 +94,7 @@ function AddOrder() {
             quantity: Number(formData.quantity)
           }
         ],
-        totalPrice: Number(formData.totalPrice)
+        totalPrice: totalPrice
       });
 
       setMessage(res.data.message);
@@ -77,8 +103,7 @@ function AddOrder() {
         user: "",
         restaurant: "",
         menuItem: "",
-        quantity: "",
-        totalPrice: ""
+        quantity: ""
       });
     } catch (error) {
       setMessage(error.response?.data?.message || error.message || "Failed to place order");
@@ -126,7 +151,7 @@ function AddOrder() {
             onChange={handleChange}
           >
             <option value="">Select Menu Item</option>
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <option key={item._id} value={item._id}>
                 {item.name} - ₹{item.price}
               </option>
@@ -146,12 +171,7 @@ function AddOrder() {
 
         <div>
           <label>Total Price:</label>
-          <input
-            type="number"
-            name="totalPrice"
-            value={formData.totalPrice}
-            onChange={handleChange}
-          />
+          <input type="number" value={totalPrice} readOnly />
         </div>
 
         <button type="submit">Place Order</button>

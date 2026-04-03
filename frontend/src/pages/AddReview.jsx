@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 function AddReview() {
@@ -48,10 +48,27 @@ function AddReview() {
     fetchOrders();
   }, []);
 
+  const filteredOrders = useMemo(() => {
+    return orders.filter(
+      (order) => order.restaurant._id === formData.restaurant
+    );
+  }, [orders, formData.restaurant]);
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "restaurant") {
+      setFormData({
+        ...formData,
+        restaurant: value,
+        order: ""
+      });
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -114,7 +131,7 @@ function AddReview() {
           <label>Order:</label>
           <select name="order" value={formData.order} onChange={handleChange}>
             <option value="">Select Order</option>
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <option key={order._id} value={order._id}>
                 {order.restaurant.name} - ₹{order.totalPrice} - {order.status}
               </option>

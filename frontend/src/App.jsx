@@ -1,5 +1,5 @@
 import "./App.css";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -14,6 +14,14 @@ import AddOrder from "./pages/AddOrder";
 import AddReview from "./pages/AddReview";
 
 function App() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <div className="app-container">
       <h1>Food Delivery and Dine-Out Platform</h1>
@@ -31,6 +39,12 @@ function App() {
         <Link to="/add-menu">Add Menu</Link> |{" "}
         <Link to="/add-order">Add Order</Link> |{" "}
         <Link to="/add-review">Add Review</Link>
+        {token && (
+          <>
+            {" | "}
+            <button onClick={handleLogout}>Logout</button>
+          </>
+        )}
       </nav>
 
       <div className="page-content">

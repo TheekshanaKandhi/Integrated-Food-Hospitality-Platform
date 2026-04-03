@@ -17,14 +17,41 @@ import PrivateRoute from "./pages/PrivateRoute";
 function App() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const userEmail = localStorage.getItem("userEmail");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
     navigate("/login");
+  };
+
+  const getInitial = () => {
+    if (!userEmail) return "U";
+    return userEmail.charAt(0).toUpperCase();
   };
 
   return (
     <div className="app-container">
+      <div className="top-bar">
+        <div className="profile-section">
+          {token ? (
+            <>
+              <div className="profile-circle">{getInitial()}</div>
+              <div className="profile-info">
+                <span className="profile-email">{userEmail}</span>
+                <button className="logout-btn" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="profile-info">
+              <span className="profile-email">Guest User</span>
+            </div>
+          )}
+        </div>
+      </div>
+
       <h1>Food Delivery and Dine-Out Platform</h1>
 
       <nav>
@@ -40,12 +67,6 @@ function App() {
         <Link to="/add-menu">Add Menu</Link> |{" "}
         <Link to="/add-order">Add Order</Link> |{" "}
         <Link to="/add-review">Add Review</Link>
-        {token && (
-          <>
-            {" | "}
-            <button onClick={handleLogout}>Logout</button>
-          </>
-        )}
       </nav>
 
       <div className="page-content">

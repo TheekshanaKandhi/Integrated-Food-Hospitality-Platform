@@ -23,6 +23,7 @@ function Login() {
       const res = await axios.post("http://127.0.0.1:5000/api/auth/login", formData);
       setMessage(res.data.message);
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userEmail", formData.email);
     } catch (error) {
       setMessage(error.response?.data?.message || error.message || "Login failed");
     }

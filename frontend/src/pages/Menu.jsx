@@ -4,6 +4,7 @@ import axios from "axios";
 function Menu() {
   const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -28,6 +29,27 @@ function Menu() {
     });
   }, [menuItems, searchTerm]);
 
+  const handleAddToCart = (item) => {
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingItem = existingCart.find((cartItem) => cartItem._id === item._id);
+
+    let updatedCart;
+
+    if (existingItem) {
+      updatedCart = existingCart.map((cartItem) =>
+        cartItem._id === item._id
+          ? { ...cartItem, quantity: cartItem.quantity + 1 }
+          : cartItem
+      );
+    } else {
+      updatedCart = [...existingCart, { ...item, quantity: 1 }];
+    }
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    setMessage(`${item.name} added to cart`);
+  };
+
   const menuImages = [
     "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1604908176997-431da2f1b0f9?auto=format&fit=crop&w=900&q=80",
@@ -49,6 +71,8 @@ function Menu() {
         />
       </div>
 
+      {message && <p>{message}</p>}
+
       {filteredMenuItems.length === 0 ? (
         <p>No menu items found.</p>
       ) : (
@@ -66,6 +90,7 @@ function Menu() {
                   <span>₹{item.price}</span>
                   <span>{item.restaurant.name}</span>
                 </div>
+                <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
               </div>
             </div>
           ))}

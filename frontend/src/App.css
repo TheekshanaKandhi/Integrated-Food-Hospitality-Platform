@@ -816,3 +816,6 @@ p {
 .hero-search button:hover {
   background: #c92f3a;
 }
+.menu-card button {
+  margin-top: 14px;
+}

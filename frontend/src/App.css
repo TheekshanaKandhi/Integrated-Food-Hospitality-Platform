@@ -258,3 +258,7 @@ p {
   color: #5c677d;
   font-size: 15px;
 }
+.dashboard-icon {
+  font-size: 30px;
+  margin-bottom: 12px;
+}

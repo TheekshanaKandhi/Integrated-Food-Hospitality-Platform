@@ -40,21 +40,25 @@ function Home() {
 
       <div className="dashboard-grid">
         <div className="dashboard-card">
+          <div className="dashboard-icon">🏬</div>
           <h3>Total Restaurants</h3>
           <p>{counts.restaurants}</p>
         </div>
 
         <div className="dashboard-card">
+          <div className="dashboard-icon">🍜</div>
           <h3>Total Menu Items</h3>
           <p>{counts.menu}</p>
         </div>
 
         <div className="dashboard-card">
+          <div className="dashboard-icon">🧾</div>
           <h3>Total Orders</h3>
           <p>{counts.orders}</p>
         </div>
 
         <div className="dashboard-card">
+          <div className="dashboard-icon">⭐</div>
           <h3>Total Reviews</h3>
           <p>{counts.reviews}</p>
         </div>

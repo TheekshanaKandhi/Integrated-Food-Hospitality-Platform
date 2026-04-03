@@ -761,3 +761,6 @@ p {
 .restaurant-filter-bar select {
   background: white;
 }
+.cart-summary button {
+  margin-top: 14px;
+}

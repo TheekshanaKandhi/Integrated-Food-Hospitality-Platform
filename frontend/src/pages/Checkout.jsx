@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Checkout() {
@@ -12,6 +13,7 @@ function Checkout() {
   const [message, setMessage] = useState("");
 
   const userEmail = localStorage.getItem("userEmail");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadData = async () => {
@@ -87,6 +89,10 @@ function Checkout() {
         address: "",
         paymentMethod: "Cash on Delivery"
       });
+
+      setTimeout(() => {
+        navigate("/orders");
+      }, 1000);
     } catch (error) {
       setMessage(error.response?.data?.message || error.message || "Failed to place order");
     }

@@ -110,7 +110,7 @@ function Checkout() {
 )}
 
       {cartItems.length === 0 ? (
-        <p>No items in cart.</p>
+        <p className="empty-state">No items in cart.</p>
       ) : (
         <div className="checkout-grid">
           <div className="checkout-form-box">

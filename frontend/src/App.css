@@ -854,3 +854,18 @@ p {
   90% { opacity: 1; }
   100% { opacity: 0; transform: translateY(20px); }
 }
+.empty-state {
+  text-align: center;
+  padding: 28px;
+  background: #fff5f2;
+  color: #a44a3f;
+  border-radius: 14px;
+  font-weight: 600;
+  margin-top: 18px;
+}
+
+.checkout-form-box button,
+.cart-summary button {
+  border-radius: 12px;
+  padding: 12px 18px;
+}

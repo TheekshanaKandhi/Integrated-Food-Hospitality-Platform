@@ -45,7 +45,7 @@ function Cart() {
       <p>Review your selected food items before placing the order.</p>
 
       {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p className="empty-state">Your cart is empty.</p>
       ) : (
         <div className="cart-grid">
           {cartItems.map((item) => (

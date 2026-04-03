@@ -80,7 +80,7 @@ function RestaurantDetails() {
         </div>
       </div>
 
-      {message && <p>{message}</p>}
+      {message && <p className="success-message">{message}</p>}
 
       <section className="restaurant-menu-section">
         <h3>Menu</h3>

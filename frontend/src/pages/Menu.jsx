@@ -71,7 +71,7 @@ function Menu() {
         />
       </div>
 
-      {message && <p>{message}</p>}
+      {message && <p className="success-message">{message}</p>}
 
       {filteredMenuItems.length === 0 ? (
         <p>No menu items found.</p>

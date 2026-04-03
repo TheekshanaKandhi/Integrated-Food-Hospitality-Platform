@@ -87,7 +87,11 @@ function AddRestaurant() {
         <button type="submit">Add Restaurant</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && (
+  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+    {message}
+  </p>
+)}
     </div>
   );
 }

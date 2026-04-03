@@ -57,7 +57,11 @@ function Login() {
         <button type="submit">Login</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && (
+  <p className={message.toLowerCase().includes("successful") ? "success-message" : "error-message"}>
+    {message}
+  </p>
+)}
     </div>
   );
 }

@@ -120,7 +120,11 @@ function AddMenu() {
         <button type="submit">Add Menu Item</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && (
+  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+    {message}
+  </p>
+)}
     </div>
   );
 }

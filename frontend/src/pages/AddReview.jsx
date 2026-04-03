@@ -163,7 +163,11 @@ function AddReview() {
         <button type="submit">Add Review</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && (
+  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+    {message}
+  </p>
+)}
     </div>
   );
 }

@@ -103,7 +103,11 @@ function Checkout() {
       <h2>Checkout</h2>
       <p>Confirm your delivery details and place the order.</p>
 
-      {message && <p>{message}</p>}
+      {message && (
+  <p className={message.includes("successfully") ? "success-message" : "error-message"}>
+    {message}
+  </p>
+)}
 
       {cartItems.length === 0 ? (
         <p>No items in cart.</p>

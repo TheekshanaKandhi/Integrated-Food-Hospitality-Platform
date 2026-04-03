@@ -178,7 +178,11 @@ function AddOrder() {
         <button type="submit">Place Order</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && (
+  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+    {message}
+  </p>
+)}
     </div>
   );
 }

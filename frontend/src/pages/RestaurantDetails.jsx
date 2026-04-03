@@ -6,6 +6,7 @@ function RestaurantDetails() {
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +36,27 @@ function RestaurantDetails() {
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
   ];
 
+  const handleAddToCart = (item) => {
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingItem = existingCart.find((cartItem) => cartItem._id === item._id);
+
+    let updatedCart;
+
+    if (existingItem) {
+      updatedCart = existingCart.map((cartItem) =>
+        cartItem._id === item._id
+          ? { ...cartItem, quantity: cartItem.quantity + 1 }
+          : cartItem
+      );
+    } else {
+      updatedCart = [...existingCart, { ...item, quantity: 1 }];
+    }
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    setMessage(`${item.name} added to cart`);
+  };
+
   if (!restaurant) {
     return <p>Restaurant not found.</p>;
   }
@@ -58,6 +80,8 @@ function RestaurantDetails() {
         </div>
       </div>
 
+      {message && <p>{message}</p>}
+
       <section className="restaurant-menu-section">
         <h3>Menu</h3>
 
@@ -76,7 +100,7 @@ function RestaurantDetails() {
                   <p>{item.category}</p>
                   <div className="menu-meta">
                     <span>₹{item.price}</span>
-                    <button>Add</button>
+                    <button onClick={() => handleAddToCart(item)}>Add</button>
                   </div>
                 </div>
               </div>

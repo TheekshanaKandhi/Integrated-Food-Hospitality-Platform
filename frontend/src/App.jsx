@@ -13,6 +13,7 @@ import AddRestaurant from "./pages/AddRestaurant";
 import AddMenu from "./pages/AddMenu";
 import AddOrder from "./pages/AddOrder";
 import AddReview from "./pages/AddReview";
+import Cart from "./pages/Cart";
 import PrivateRoute from "./pages/PrivateRoute";
 
 function App() {
@@ -74,6 +75,7 @@ function App() {
         <div className="nav-group">
           <Link to="/restaurants">Restaurants</Link>
           <Link to="/menu">Menu</Link>
+          <Link to="/cart">Cart</Link>
           <Link to="/orders">Orders</Link>
           <Link to="/reviews">Reviews</Link>
         </div>
@@ -121,6 +123,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Menu />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <Cart />
               </PrivateRoute>
             }
           />

@@ -19,7 +19,8 @@ function Menu() {
 
   return (
     <div>
-      <h2>Menu Page</h2>
+      <h2>Menu Items</h2>
+      <p>View all food items available across restaurants.</p>
 
       {menuItems.length === 0 ? (
         <p>No menu items found.</p>

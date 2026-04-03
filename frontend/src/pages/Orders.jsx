@@ -19,7 +19,8 @@ function Orders() {
 
   return (
     <div>
-      <h2>Orders Page</h2>
+      <h2>Orders</h2>
+      <p>Track all customer orders and their current delivery status.</p>
 
       {orders.length === 0 ? (
         <p>No orders found.</p>

@@ -19,7 +19,8 @@ function Reviews() {
 
   return (
     <div>
-      <h2>Reviews Page</h2>
+      <h2>Reviews</h2>
+      <p>Read customer feedback and restaurant ratings from completed orders.</p>
 
       {reviews.length === 0 ? (
         <p>No reviews found.</p>

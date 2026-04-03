@@ -19,7 +19,8 @@ function Restaurants() {
 
   return (
     <div>
-      <h2>Restaurants Page</h2>
+      <h2>Restaurants</h2>
+      <p>Browse all restaurant partners available in the platform.</p>
 
       {restaurants.length === 0 ? (
         <p>No restaurants found.</p>

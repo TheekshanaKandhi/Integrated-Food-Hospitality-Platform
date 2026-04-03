@@ -924,3 +924,26 @@ p {
   margin-bottom: 18px;
   color: #6b7280;
 }
+.auth-page {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card h2 {
+  margin-bottom: 10px;
+}
+
+.auth-card p {
+  margin-bottom: 18px;
+  color: #6b7280;
+}

@@ -3,19 +3,26 @@ import axios from "axios";
 
 function Reviews() {
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const res = await axios.get("http://127.0.0.1:5000/api/reviews");
         setReviews(res.data);
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     };
 
     fetchReviews();
   }, []);
+
+  if (loading) {
+    return <div className="loading-state">Loading reviews...</div>;
+  }
 
   return (
     <div>

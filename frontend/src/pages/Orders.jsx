@@ -3,6 +3,7 @@ import axios from "axios";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -10,8 +11,10 @@ function Orders() {
         const res = await axios.get("http://127.0.0.1:5000/api/orders");
         const reversedOrders = [...res.data].reverse();
         setOrders(reversedOrders);
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     };
 
@@ -32,6 +35,10 @@ function Orders() {
         return 1;
     }
   };
+
+  if (loading) {
+    return <div className="loading-state">Loading orders...</div>;
+  }
 
   return (
     <div>

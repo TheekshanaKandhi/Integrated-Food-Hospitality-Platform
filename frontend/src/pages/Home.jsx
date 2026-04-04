@@ -9,9 +9,9 @@ function Home() {
     orders: 0,
     reviews: 0
   });
-
   const [restaurants, setRestaurants] = useState([]);
   const [heroSearch, setHeroSearch] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,8 +32,10 @@ function Home() {
         });
 
         setRestaurants(restaurantsRes.data);
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     };
 
@@ -61,6 +63,10 @@ function Home() {
       handleHeroSearch();
     }
   };
+
+  if (loading) {
+    return <div className="loading-state">Loading home...</div>;
+  }
 
   return (
     <div>

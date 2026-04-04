@@ -6,6 +6,7 @@ function Menu() {
   const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -18,8 +19,10 @@ function Menu() {
       try {
         const res = await axios.get("http://127.0.0.1:5000/api/menu");
         setMenuItems(res.data);
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     };
 
@@ -64,6 +67,10 @@ function Menu() {
     "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
   ];
+
+  if (loading) {
+    return <div className="loading-state">Loading menu...</div>;
+  }
 
   return (
     <div>

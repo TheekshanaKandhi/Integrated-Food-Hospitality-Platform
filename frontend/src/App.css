@@ -1052,3 +1052,65 @@ p {
 .nav-section-title:last-of-type {
   color: #ffd166;
 }
+@media (max-width: 768px) {
+  #root {
+    padding: 12px;
+  }
+
+  .app-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .app-title-block h1 {
+    text-align: center;
+  }
+
+  .hero-section {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+
+  .hero-text h2 {
+    font-size: 28px;
+  }
+
+  .hero-search {
+    flex-direction: column;
+  }
+
+  .restaurant-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cart-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .order-progress {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .navbar {
+    top: 64px;
+  }
+}
+.loading-state {
+  text-align: center;
+  padding: 40px 20px;
+  font-weight: 700;
+  color: #1d3557;
+  background: #f8fbff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}

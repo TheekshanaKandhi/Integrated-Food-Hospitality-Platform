@@ -6,6 +6,7 @@ function Restaurants() {
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCuisine, setSelectedCuisine] = useState("All");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,8 +14,10 @@ function Restaurants() {
       try {
         const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
         setRestaurants(res.data);
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     };
 
@@ -46,6 +49,10 @@ function Restaurants() {
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80"
   ];
+
+  if (loading) {
+    return <div className="loading-state">Loading restaurants...</div>;
+  }
 
   return (
     <div>

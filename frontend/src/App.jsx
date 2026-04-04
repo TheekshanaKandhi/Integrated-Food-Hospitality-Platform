@@ -83,31 +83,33 @@ function App() {
         </div>
       </div>
 
-      <nav className="navbar">
-        <div className="nav-group">
-          <Link to="/">Home</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-          <Link to="/protected">Protected</Link>
-        </div>
+<nav className="navbar">
+  <div className="nav-section-title">Explore</div>
+  <div className="nav-group">
+    <Link to="/">Home</Link>
+    <Link to="/restaurants">Restaurants</Link>
+    <Link to="/menu">Menu</Link>
+    <Link to="/cart">Cart ({cartCount})</Link>
+    <Link to="/checkout">Checkout</Link>
+    <Link to="/orders">Orders</Link>
+    <Link to="/reviews">Reviews</Link>
+  </div>
 
-        <div className="nav-group">
-          <Link to="/restaurants">Restaurants</Link>
-          <Link to="/menu">Menu</Link>
-          <Link to="/cart">Cart ({cartCount})</Link>
-          <Link to="/checkout">Checkout</Link>
-          <Link to="/orders">Orders</Link>
-          <Link to="/reviews">Reviews</Link>
-        </div>
+  <div className="nav-section-title">Account</div>
+  <div className="nav-group">
+    <Link to="/login">Login</Link>
+    <Link to="/register">Register</Link>
+    <Link to="/protected">Protected</Link>
+  </div>
 
-        <div className="nav-group">
-          <Link to="/add-restaurant">Add Restaurant</Link>
-          <Link to="/add-menu">Add Menu</Link>
-          <Link to="/add-order">Add Order</Link>
-          <Link to="/add-review">Add Review</Link>
-        </div>
-      </nav>
-
+  <div className="nav-section-title">Admin</div>
+  <div className="nav-group">
+    <Link to="/add-restaurant">Add Restaurant</Link>
+    <Link to="/add-menu">Add Menu</Link>
+    <Link to="/add-order">Add Order</Link>
+    <Link to="/add-review">Add Review</Link>
+  </div>
+</nav>
       <div className="page-content">
         <Routes>
           <Route path="/" element={<Home />} />

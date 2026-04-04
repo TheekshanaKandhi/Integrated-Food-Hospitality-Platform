@@ -1129,3 +1129,10 @@ p {
   font-size: 13px;
   color: #6b7280;
 }
+.menu-note {
+  display: block;
+  margin-top: -4px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #8a8f99;
+}

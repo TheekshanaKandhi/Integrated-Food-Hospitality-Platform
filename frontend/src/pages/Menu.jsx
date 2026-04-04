@@ -101,6 +101,7 @@ function Menu() {
               <div className="menu-card-body">
                 <h3>{item.name}</h3>
                 <p>{item.category}</p>
+                <span className="menu-note">Freshly prepared and delivered hot</span>
                 <div className="menu-meta">
                   <span>₹{item.price}</span>
                   <span>{item.restaurant.name}</span>

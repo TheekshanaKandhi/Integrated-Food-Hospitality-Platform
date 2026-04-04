@@ -128,8 +128,12 @@ function Home() {
                   <h4>{restaurant.name}</h4>
                   <p>{restaurant.cuisine}</p>
                   <div className="featured-meta">
-                    <span>⭐ {restaurant.rating || 4.2}</span>
-                    <span>{restaurant.address}</span>
+                  <span>⭐ {restaurant.rating || 4.2}</span>
+                  <span>{restaurant.address}</span>
+                  </div>
+                  <div className="featured-extra">
+                  <span>30-40 min</span>
+                  <span>₹300 for two</span>
                   </div>
                 </div>
               </div>
@@ -145,24 +149,28 @@ function Home() {
             <div className="dashboard-icon">🏬</div>
             <h3>Total Restaurants</h3>
             <p>{counts.restaurants}</p>
+            <span className="dashboard-note">Available dining partners</span>
           </div>
 
           <div className="dashboard-card">
             <div className="dashboard-icon">🍜</div>
             <h3>Total Menu Items</h3>
             <p>{counts.menu}</p>
+            <span className="dashboard-note">Dishes ready to explore</span>
           </div>
 
           <div className="dashboard-card">
             <div className="dashboard-icon">🧾</div>
             <h3>Total Orders</h3>
             <p>{counts.orders}</p>
+            <span className="dashboard-note">Orders placed on platform</span>
           </div>
 
           <div className="dashboard-card">
             <div className="dashboard-icon">⭐</div>
             <h3>Total Reviews</h3>
             <p>{counts.reviews}</p>
+            <span className="dashboard-note">Customer feedback collected</span>
           </div>
         </div>
       </section>

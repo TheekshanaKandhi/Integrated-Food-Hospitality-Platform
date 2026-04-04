@@ -1116,3 +1116,16 @@ p {
   font-size: 18px;
   letter-spacing: 0.3px;
 }
+.dashboard-note {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+}
+.featured-extra {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #6b7280;
+}

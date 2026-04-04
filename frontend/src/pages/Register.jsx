@@ -74,7 +74,7 @@ function Register() {
           </p>
         )}
         <p className="auth-switch-text">
-  Don&apos;t have an account? <a href="/register">Create one</a>
+  Already have an account? <a href="/login">Login</a>
 </p>
       </div>
     </div>

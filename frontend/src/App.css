@@ -962,3 +962,82 @@ p {
 .auth-switch-text a:hover {
   text-decoration: underline;
 }
+.app-footer {
+  margin-top: 28px;
+  background: linear-gradient(135deg, #1d3557, #457b9d);
+  color: white;
+  padding: 28px 24px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.footer-brand h3 {
+  margin-bottom: 8px;
+}
+
+.footer-brand p {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 18px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.footer-links span {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.footer-copy {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+}
+.app-footer {
+  margin-top: 28px;
+  background: linear-gradient(135deg, #1d3557, #457b9d);
+  color: white;
+  padding: 28px 24px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.footer-brand h3 {
+  margin-bottom: 8px;
+}
+
+.footer-brand p {
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 18px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.footer-links span {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: transform 0.25s ease, background 0.25s ease;
+  cursor: pointer;
+}
+
+.footer-links span:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+.footer-copy {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+}

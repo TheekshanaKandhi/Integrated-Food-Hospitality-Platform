@@ -212,6 +212,23 @@ function App() {
           />
         </Routes>
       </div>
+
+      <footer className="app-footer">
+        <div className="footer-brand">
+          <h3>Food Delivery and Dine-Out Platform</h3>
+          <p>Discover restaurants, explore menus, and enjoy a smooth ordering experience.</p>
+        </div>
+
+        <div className="footer-links">
+          <span>Home</span>
+          <span>Restaurants</span>
+          <span>Menu</span>
+          <span>Orders</span>
+          <span>Reviews</span>
+        </div>
+
+        <p className="footer-copy">© 2026 Food Delivery and Dine-Out Platform. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

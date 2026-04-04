@@ -97,8 +97,12 @@ function Restaurants() {
                 <h3>{restaurant.name}</h3>
                 <p>{restaurant.cuisine}</p>
                 <div className="restaurant-meta">
-                  <span>⭐ {restaurant.rating || 4.2}</span>
-                  <span>{restaurant.address}</span>
+                <span>⭐ {restaurant.rating || 4.2}</span>
+                <span>{restaurant.address}</span>
+                </div>
+                <div className="featured-extra">
+                <span>30-40 min</span>
+                <span>₹300 for two</span>
                 </div>
               </div>
             </div>

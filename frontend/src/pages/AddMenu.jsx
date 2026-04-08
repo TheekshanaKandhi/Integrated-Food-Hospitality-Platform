@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AddMenu() {
-  const [formData, setFormData] = useState({
-    restaurant: "",
-    name: "",
-    price: "",
-    category: "",
-    isAvailable: true
-  });
-
   const [restaurants, setRestaurants] = useState([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    price: "",
+    restaurant: ""
+  });
+  const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -27,29 +28,46 @@ function AddMenu() {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value
+      [e.target.name]: e.target.value
     });
+  };
+
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/menu", {
-        ...formData,
-        price: Number(formData.price)
+      const payload = new FormData();
+      payload.append("name", formData.name);
+      payload.append("category", formData.category);
+      payload.append("price", formData.price);
+      payload.append("restaurant", formData.restaurant);
+
+      if (image) {
+        payload.append("image", image);
+      }
+
+      const res = await axios.post("http://127.0.0.1:5000/api/menu", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
       });
-      setMessage(res.data.message);
+
+      setMessage(res.data.message || "Menu item added successfully");
       setFormData({
-        restaurant: "",
         name: "",
-        price: "",
         category: "",
-        isAvailable: true
+        price: "",
+        restaurant: ""
       });
+      setImage(null);
+      document.getElementById("menu-image-input").value = "";
     } catch (error) {
       setMessage(error.response?.data?.message || error.message || "Failed to add menu item");
     }
@@ -59,24 +77,9 @@ function AddMenu() {
     <div>
       <h2>Add Menu Item</h2>
       <p>Create a new food item and link it to a restaurant.</p>
+      <p className="page-sub-note">Add dish details, price, and availability for a restaurant.</p>
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Restaurant:</label>
-          <select
-            name="restaurant"
-            value={formData.restaurant}
-            onChange={handleChange}
-          >
-            <option value="">Select Restaurant</option>
-            {restaurants.map((restaurant) => (
-              <option key={restaurant._id} value={restaurant._id}>
-                {restaurant.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div>
           <label>Item Name:</label>
           <input
@@ -84,16 +87,7 @@ function AddMenu() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label>Price:</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
+            placeholder="Enter item name"
           />
         </div>
 
@@ -104,16 +98,44 @@ function AddMenu() {
             name="category"
             value={formData.category}
             onChange={handleChange}
+            placeholder="Enter category"
           />
         </div>
 
         <div>
-          <label>Available:</label>
+          <label>Price:</label>
           <input
-            type="checkbox"
-            name="isAvailable"
-            checked={formData.isAvailable}
+            type="number"
+            name="price"
+            value={formData.price}
             onChange={handleChange}
+            placeholder="Enter price"
+          />
+        </div>
+
+        <div>
+          <label>Restaurant:</label>
+          <select
+            name="restaurant"
+            value={formData.restaurant}
+            onChange={handleChange}
+          >
+            <option value="">Select restaurant</option>
+            {restaurants.map((restaurant) => (
+              <option key={restaurant._id} value={restaurant._id}>
+                {restaurant.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label>Food Item Image:</label>
+          <input
+            id="menu-image-input"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
           />
         </div>
 
@@ -121,10 +143,10 @@ function AddMenu() {
       </form>
 
       {message && (
-  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
-    {message}
-  </p>
-)}
+        <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

@@ -2,93 +2,91 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 function AddReview() {
+  const [restaurants, setRestaurants] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [formData, setFormData] = useState({
-    user: "",
     restaurant: "",
     order: "",
     rating: "",
     comment: ""
   });
-
-  const [users, setUsers] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
-  const [orders, setOrders] = useState([]);
+  const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/api/auth/users");
-        setUsers(res.data);
+        const [restaurantsRes, ordersRes] = await Promise.all([
+          axios.get("http://127.0.0.1:5000/api/restaurants"),
+          axios.get("http://127.0.0.1:5000/api/orders", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+        ]);
+
+        setRestaurants(restaurantsRes.data);
+        setOrders(ordersRes.data);
       } catch (error) {
         console.log(error);
       }
     };
 
-    const fetchRestaurants = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
-        setRestaurants(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const fetchOrders = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:5000/api/orders");
-        setOrders(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchUsers();
-    fetchRestaurants();
-    fetchOrders();
-  }, []);
+    fetchData();
+  }, [token]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter(
-      (order) => order.restaurant._id === formData.restaurant
-    );
+    if (!formData.restaurant) return [];
+    return orders.filter((order) => {
+      const restaurantId =
+        typeof order.restaurant === "object" ? order.restaurant._id : order.restaurant;
+      return restaurantId === formData.restaurant;
+    });
   }, [orders, formData.restaurant]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "restaurant") {
-      setFormData({
-        ...formData,
-        restaurant: value,
-        order: ""
-      });
-      return;
-    }
-
     setFormData({
       ...formData,
-      [name]: value
+      [e.target.name]: e.target.value
     });
+  };
+
+  const handleFileChange = (e) => {
+    setImage(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/reviews", {
-        ...formData,
-        rating: Number(formData.rating)
+      const payload = new FormData();
+      payload.append("restaurant", formData.restaurant);
+      payload.append("order", formData.order);
+      payload.append("rating", formData.rating);
+      payload.append("comment", formData.comment);
+
+      if (image) {
+        payload.append("image", image);
+      }
+
+      const res = await axios.post("http://127.0.0.1:5000/api/reviews", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
       });
 
-      setMessage(res.data.message);
+      setMessage(res.data.message || "Review added successfully");
       setFormData({
-        user: "",
         restaurant: "",
         order: "",
         rating: "",
         comment: ""
       });
+      setImage(null);
+      document.getElementById("review-image-input").value = "";
     } catch (error) {
       setMessage(error.response?.data?.message || error.message || "Failed to add review");
     }
@@ -98,28 +96,13 @@ function AddReview() {
     <div>
       <h2>Add Review</h2>
       <p>Submit customer feedback and rating for a completed restaurant order.</p>
+      <p className="page-sub-note">Attach feedback to an order and restaurant for better tracking.</p>
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label>User:</label>
-          <select name="user" value={formData.user} onChange={handleChange}>
-            <option value="">Select User</option>
-            {users.map((user) => (
-              <option key={user._id} value={user._id}>
-                {user.name} - {user.email}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
           <label>Restaurant:</label>
-          <select
-            name="restaurant"
-            value={formData.restaurant}
-            onChange={handleChange}
-          >
-            <option value="">Select Restaurant</option>
+          <select name="restaurant" value={formData.restaurant} onChange={handleChange}>
+            <option value="">Select restaurant</option>
             {restaurants.map((restaurant) => (
               <option key={restaurant._id} value={restaurant._id}>
                 {restaurant.name}
@@ -131,10 +114,10 @@ function AddReview() {
         <div>
           <label>Order:</label>
           <select name="order" value={formData.order} onChange={handleChange}>
-            <option value="">Select Order</option>
+            <option value="">Select order</option>
             {filteredOrders.map((order) => (
               <option key={order._id} value={order._id}>
-                {order.restaurant.name} - ₹{order.totalPrice} - {order.status}
+                {order._id}
               </option>
             ))}
           </select>
@@ -147,6 +130,8 @@ function AddReview() {
             name="rating"
             value={formData.rating}
             onChange={handleChange}
+            min="1"
+            max="5"
           />
         </div>
 
@@ -157,6 +142,17 @@ function AddReview() {
             name="comment"
             value={formData.comment}
             onChange={handleChange}
+            placeholder="Enter review comment"
+          />
+        </div>
+
+        <div>
+          <label>Review Photo:</label>
+          <input
+            id="review-image-input"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
           />
         </div>
 
@@ -164,10 +160,10 @@ function AddReview() {
       </form>
 
       {message && (
-  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
-    {message}
-  </p>
-)}
+        <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

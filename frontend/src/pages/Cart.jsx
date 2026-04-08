@@ -43,6 +43,7 @@ function Cart() {
     <div>
       <h2>Cart</h2>
       <p>Review your selected food items before placing the order.</p>
+      <p className="page-sub-note">Update quantities or remove items before checkout.</p>
 
       {cartItems.length === 0 ? (
         <p className="empty-state">Your cart is empty.</p>
@@ -52,6 +53,7 @@ function Cart() {
             <div className="cart-card" key={item._id}>
               <div className="cart-info">
                 <h3>{item.name}</h3>
+                <span className="food-badge">Veg</span>
                 <p>{item.category}</p>
                 <p>₹{item.price} each</p>
                 <p>
@@ -84,6 +86,9 @@ function Cart() {
             <h3>Cart Summary</h3>
             <p>
               <strong>Total Amount:</strong> ₹{totalAmount}
+            </p>
+            <p className="cart-subtext">
+              Delivery charges and taxes will be calculated at checkout.
             </p>
             <button onClick={() => navigate("/checkout")}>
               Proceed to Checkout

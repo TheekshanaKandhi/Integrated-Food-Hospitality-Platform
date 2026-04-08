@@ -39,6 +39,9 @@ function Menu() {
     });
   }, [menuItems, searchTerm]);
 
+  const fallbackMenuImage =
+    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80";
+
   const handleAddToCart = (item) => {
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -61,13 +64,6 @@ function Menu() {
     setTimeout(() => setMessage(""), 2500);
   };
 
-  const menuImages = [
-    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1604908176997-431da2f1b0f9?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
-  ];
-
   if (loading) {
     return <div className="loading-state">Loading menu...</div>;
   }
@@ -76,6 +72,8 @@ function Menu() {
     <div>
       <h2>Menu Items</h2>
       <p>View all food items available across restaurants.</p>
+      <p className="page-sub-note">Search dishes, explore categories, and quickly add items to cart.</p>
+      <p className="section-helper-text">Search dishes by name, category, or restaurant.</p>
 
       <div className="restaurant-filter-bar">
         <input
@@ -89,17 +87,18 @@ function Menu() {
       {message && <div className="toast">{message}</div>}
 
       {filteredMenuItems.length === 0 ? (
-        <p>No menu items found.</p>
+        <p className="empty-state">No menu items found.</p>
       ) : (
         <div className="menu-grid">
-          {filteredMenuItems.map((item, index) => (
+          {filteredMenuItems.map((item) => (
             <div className="menu-card" key={item._id}>
               <img
-                src={menuImages[index % menuImages.length]}
+                src={item.imageUrl || fallbackMenuImage}
                 alt={item.name}
               />
               <div className="menu-card-body">
                 <h3>{item.name}</h3>
+                <span className="food-badge">Veg</span>
                 <p>{item.category}</p>
                 <span className="menu-note">Freshly prepared and delivered hot</span>
                 <div className="menu-meta">

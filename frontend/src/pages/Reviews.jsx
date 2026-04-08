@@ -20,6 +20,9 @@ function Reviews() {
     fetchReviews();
   }, []);
 
+  const fallbackReviewImage =
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80";
+
   if (loading) {
     return <div className="loading-state">Loading reviews...</div>;
   }
@@ -28,9 +31,10 @@ function Reviews() {
     <div>
       <h2>Reviews</h2>
       <p>Read customer feedback and restaurant ratings from completed orders.</p>
+      <p className="page-sub-note">Explore verified ratings and comments from customer orders.</p>
 
       {reviews.length === 0 ? (
-        <p>No reviews found.</p>
+        <p className="empty-state">No reviews found.</p>
       ) : (
         <div className="reviews-grid">
           {reviews.map((review) => (
@@ -40,8 +44,17 @@ function Reviews() {
                 <span className="review-rating">⭐ {review.rating}/5</span>
               </div>
 
+              {review.imageUrl && (
+                <img
+                  src={review.imageUrl || fallbackReviewImage}
+                  alt="Review"
+                  className="review-image"
+                />
+              )}
+
               <p><strong>Customer:</strong> {review.user.name}</p>
               <p className="review-comment">“{review.comment}”</p>
+              <span className="review-note">Verified order review</span>
               <p><strong>Order:</strong> ₹{review.order.totalPrice} - {review.order.status}</p>
             </div>
           ))}

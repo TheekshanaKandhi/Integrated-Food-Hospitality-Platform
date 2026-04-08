@@ -43,12 +43,8 @@ function Restaurants() {
     });
   }, [restaurants, searchTerm, selectedCuisine]);
 
-  const restaurantImages = [
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80"
-  ];
+  const fallbackRestaurantImage =
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
 
   if (loading) {
     return <div className="loading-state">Loading restaurants...</div>;
@@ -58,6 +54,8 @@ function Restaurants() {
     <div>
       <h2>Restaurants</h2>
       <p>Browse all restaurant partners available in the platform.</p>
+      <p className="page-sub-note">Search, filter, and discover the best places to order from.</p>
+      <p className="section-helper-text">Use search and cuisine filters to quickly find restaurants.</p>
 
       <div className="restaurant-filter-bar">
         <input
@@ -83,27 +81,41 @@ function Restaurants() {
         <p>No restaurants found.</p>
       ) : (
         <div className="restaurant-grid">
-          {filteredRestaurants.map((restaurant, index) => (
+          {filteredRestaurants.map((restaurant) => (
             <div
               className="restaurant-card clickable-card"
               key={restaurant._id}
               onClick={() => navigate(`/restaurants/${restaurant._id}`)}
             >
               <img
-                src={restaurantImages[index % restaurantImages.length]}
+                src={restaurant.imageUrl || fallbackRestaurantImage}
                 alt={restaurant.name}
               />
               <div className="restaurant-card-body">
-                <h3>{restaurant.name}</h3>
+                <div className="title-with-map">
+                  <h3>{restaurant.name}</h3>
+                  {restaurant.mapUrl && (
+                    <a
+                      href={restaurant.mapUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="map-btn"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      📍
+                    </a>
+                  )}
+                </div>
                 <p>{restaurant.cuisine}</p>
                 <div className="restaurant-meta">
-                <span>⭐ {restaurant.rating || 4.2}</span>
-                <span>{restaurant.address}</span>
+                  <span>⭐ {restaurant.rating || 4.2}</span>
+                  <span>{restaurant.address}</span>
                 </div>
                 <div className="featured-extra">
-                <span>30-40 min</span>
-                <span>₹300 for two</span>
+                  <span>30-40 min</span>
+                  <span>₹300 for two</span>
                 </div>
+                <span className="card-cta">Open Details</span>
               </div>
             </div>
           ))}

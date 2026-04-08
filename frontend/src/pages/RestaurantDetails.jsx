@@ -29,12 +29,11 @@ function RestaurantDetails() {
     return menuItems.filter((item) => item.restaurant && item.restaurant._id === id);
   }, [menuItems, id]);
 
-  const menuImages = [
-    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1604908176997-431da2f1b0f9?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
-  ];
+  const fallbackRestaurantBanner =
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80";
+
+  const fallbackMenuImage =
+    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80";
 
   const handleAddToCart = (item) => {
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -66,14 +65,28 @@ function RestaurantDetails() {
     <div>
       <div className="restaurant-details-banner">
         <img
-          src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+          src={restaurant.imageUrl || fallbackRestaurantBanner}
           alt={restaurant.name}
         />
       </div>
 
       <div className="restaurant-details-header">
-        <h2>{restaurant.name}</h2>
+        <div className="title-with-map details-title-row">
+          <h2>{restaurant.name}</h2>
+          {restaurant.mapUrl && (
+            <a
+              href={restaurant.mapUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="map-btn details-map-btn"
+            >
+              📍
+            </a>
+          )}
+        </div>
         <p>{restaurant.cuisine} • {restaurant.address}</p>
+        <span className="restaurant-tagline">Popular choice for quick bites and family meals</span>
+        <p className="page-sub-note">Browse popular dishes, prices, and add your favourites to cart.</p>
         <div className="restaurant-details-meta">
           <span>⭐ {restaurant.rating || 4.2}</span>
           <span>30-40 min</span>
@@ -84,21 +97,24 @@ function RestaurantDetails() {
       {message && <div className="toast">{message}</div>}
 
       <section className="restaurant-menu-section">
+        <p className="section-helper-text">Choose your favourite dishes and add them to cart.</p>
         <h3>Menu</h3>
 
         {filteredMenuItems.length === 0 ? (
-          <p>No menu items found for this restaurant.</p>
+          <p className="empty-state">No menu items found for this restaurant.</p>
         ) : (
           <div className="menu-grid">
-            {filteredMenuItems.map((item, index) => (
+            {filteredMenuItems.map((item) => (
               <div className="menu-card" key={item._id}>
                 <img
-                  src={menuImages[index % menuImages.length]}
+                  src={item.imageUrl || fallbackMenuImage}
                   alt={item.name}
                 />
                 <div className="menu-card-body">
                   <h3>{item.name}</h3>
+                  <span className="food-badge">Veg</span>
                   <p>{item.category}</p>
+                  <span className="menu-note">Freshly prepared and delivered hot</span>
                   <div className="menu-meta">
                     <span>₹{item.price}</span>
                     <button onClick={() => handleAddToCart(item)}>Add</button>

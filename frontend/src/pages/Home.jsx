@@ -42,12 +42,8 @@ function Home() {
     fetchData();
   }, []);
 
-  const restaurantImages = [
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80"
-  ];
+  const fallbackRestaurantImage =
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
 
   const goToCategory = (category) => {
     navigate(`/menu?search=${encodeURIComponent(category)}`);
@@ -78,6 +74,12 @@ function Home() {
             a modern food delivery experience.
           </p>
 
+          <div className="hero-tags">
+            <span>Fast Delivery</span>
+            <span>Top Rated Restaurants</span>
+            <span>Easy Ordering</span>
+          </div>
+
           <div className="hero-search">
             <input
               type="text"
@@ -87,6 +89,15 @@ function Home() {
               onKeyDown={handleHeroKeyDown}
             />
             <button onClick={handleHeroSearch}>Search</button>
+          </div>
+
+          <div className="hero-cta-row">
+            <button className="secondary-cta" onClick={() => navigate("/restaurants")}>
+              Explore Restaurants
+            </button>
+            <button className="secondary-cta" onClick={() => navigate("/menu")}>
+              Browse Menu
+            </button>
           </div>
         </div>
 
@@ -113,7 +124,7 @@ function Home() {
       <section className="featured-section">
         <h3>Featured Restaurants</h3>
         <div className="featured-grid">
-          {restaurants.map((restaurant, index) => (
+          {restaurants.map((restaurant) => (
             <Link
               to={`/restaurants/${restaurant._id}`}
               className="featured-card-link"
@@ -121,20 +132,34 @@ function Home() {
             >
               <div className="featured-card">
                 <img
-                  src={restaurantImages[index % restaurantImages.length]}
+                  src={restaurant.imageUrl || fallbackRestaurantImage}
                   alt={restaurant.name}
                 />
                 <div className="featured-card-body">
-                  <h4>{restaurant.name}</h4>
+                  <div className="title-with-map">
+                    <h4>{restaurant.name}</h4>
+                    {restaurant.mapUrl && (
+                      <a
+                        href={restaurant.mapUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="map-btn"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        📍
+                      </a>
+                    )}
+                  </div>
                   <p>{restaurant.cuisine}</p>
                   <div className="featured-meta">
-                  <span>⭐ {restaurant.rating || 4.2}</span>
-                  <span>{restaurant.address}</span>
+                    <span>⭐ {restaurant.rating || 4.2}</span>
+                    <span>{restaurant.address}</span>
                   </div>
                   <div className="featured-extra">
-                  <span>30-40 min</span>
-                  <span>₹300 for two</span>
+                    <span>30-40 min</span>
+                    <span>₹300 for two</span>
                   </div>
+                  <span className="card-cta">View Restaurant</span>
                 </div>
               </div>
             </Link>

@@ -77,7 +77,12 @@ function Checkout() {
         user: loggedInUser._id,
         restaurant: restaurantId,
         items,
-        totalPrice: totalAmount
+        totalPrice: totalAmount,
+        customerName: formData.customerName,
+        deliveryAddress: formData.address,
+        paymentMethod: formData.paymentMethod,
+        paymentStatus:
+          formData.paymentMethod === "Cash on Delivery" ? "Pending" : "Paid"
       });
 
       localStorage.removeItem("cart");
@@ -94,7 +99,11 @@ function Checkout() {
         navigate("/orders");
       }, 1000);
     } catch (error) {
-      setMessage(error.response?.data?.message || error.message || "Failed to place order");
+      setMessage(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to place order"
+      );
     }
   };
 
@@ -102,12 +111,21 @@ function Checkout() {
     <div>
       <h2>Checkout</h2>
       <p>Confirm your delivery details and place the order.</p>
+      <p className="page-sub-note">
+        Review your address, payment method, and final order summary.
+      </p>
 
       {message && (
-  <p className={message.includes("successfully") ? "success-message" : "error-message"}>
-    {message}
-  </p>
-)}
+        <p
+          className={
+            message.includes("successfully")
+              ? "success-message"
+              : "error-message"
+          }
+        >
+          {message}
+        </p>
+      )}
 
       {cartItems.length === 0 ? (
         <p className="empty-state">No items in cart.</p>
@@ -167,6 +185,9 @@ function Checkout() {
             <hr />
             <p>
               <strong>Total Amount: ₹{totalAmount}</strong>
+            </p>
+            <p className="cart-subtext">
+              Invoice will be generated after order placement.
             </p>
           </div>
         </div>

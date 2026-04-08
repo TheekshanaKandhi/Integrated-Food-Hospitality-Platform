@@ -2,82 +2,52 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 function AddOrder() {
+  const [users, setUsers] = useState([]);
+  const [restaurants, setRestaurants] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
   const [formData, setFormData] = useState({
     user: "",
     restaurant: "",
     menuItem: "",
-    quantity: ""
+    quantity: 1
   });
-
-  const [users, setUsers] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
-  const [menuItems, setMenuItems] = useState([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/api/auth/users");
-        setUsers(res.data);
+        const [usersRes, restaurantsRes, menuRes] = await Promise.all([
+          axios.get("http://127.0.0.1:5000/api/auth/users"),
+          axios.get("http://127.0.0.1:5000/api/restaurants"),
+          axios.get("http://127.0.0.1:5000/api/menu")
+        ]);
+
+        setUsers(usersRes.data);
+        setRestaurants(restaurantsRes.data);
+        setMenuItems(menuRes.data);
       } catch (error) {
         console.log(error);
       }
     };
 
-    const fetchRestaurants = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
-        setRestaurants(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const fetchMenuItems = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:5000/api/menu");
-        setMenuItems(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchUsers();
-    fetchRestaurants();
-    fetchMenuItems();
+    fetchData();
   }, []);
 
   const filteredMenuItems = useMemo(() => {
+    if (!formData.restaurant) return [];
     return menuItems.filter(
-      (item) => item.restaurant._id === formData.restaurant
+      (item) =>
+        (typeof item.restaurant === "object" ? item.restaurant._id : item.restaurant) === formData.restaurant
     );
   }, [menuItems, formData.restaurant]);
 
-  const selectedMenuItem = filteredMenuItems.find(
-    (item) => item._id === formData.menuItem
-  );
-
-  const totalPrice =
-    selectedMenuItem && formData.quantity
-      ? selectedMenuItem.price * Number(formData.quantity)
-      : 0;
+  const selectedMenuItem = filteredMenuItems.find((item) => item._id === formData.menuItem);
+  const totalPrice = selectedMenuItem ? selectedMenuItem.price * Number(formData.quantity || 0) : 0;
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "restaurant") {
-      setFormData({
-        ...formData,
-        restaurant: value,
-        menuItem: "",
-        quantity: ""
-      });
-      return;
-    }
-
     setFormData({
       ...formData,
-      [name]: value
+      [e.target.name]: e.target.value
     });
   };
 
@@ -85,7 +55,7 @@ function AddOrder() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/orders", {
+      const payload = {
         user: formData.user,
         restaurant: formData.restaurant,
         items: [
@@ -94,19 +64,20 @@ function AddOrder() {
             quantity: Number(formData.quantity)
           }
         ],
-        totalPrice: totalPrice
-      });
+        totalPrice
+      };
 
-      setMessage(res.data.message);
+      const res = await axios.post("http://127.0.0.1:5000/api/orders", payload);
+      setMessage(res.data.message || "Order added successfully");
 
       setFormData({
         user: "",
         restaurant: "",
         menuItem: "",
-        quantity: ""
+        quantity: 1
       });
     } catch (error) {
-      setMessage(error.response?.data?.message || error.message || "Failed to place order");
+      setMessage(error.response?.data?.message || error.message || "Failed to add order");
     }
   };
 
@@ -114,15 +85,16 @@ function AddOrder() {
     <div>
       <h2>Add Order</h2>
       <p>Create a new customer order by selecting a user, restaurant, and menu item.</p>
+      <p className="page-sub-note">Place test or manual orders directly from the admin side.</p>
 
       <form onSubmit={handleSubmit}>
         <div>
           <label>User:</label>
           <select name="user" value={formData.user} onChange={handleChange}>
-            <option value="">Select User</option>
+            <option value="">Select user</option>
             {users.map((user) => (
               <option key={user._id} value={user._id}>
-                {user.name} - {user.email}
+                {user.name}
               </option>
             ))}
           </select>
@@ -130,12 +102,8 @@ function AddOrder() {
 
         <div>
           <label>Restaurant:</label>
-          <select
-            name="restaurant"
-            value={formData.restaurant}
-            onChange={handleChange}
-          >
-            <option value="">Select Restaurant</option>
+          <select name="restaurant" value={formData.restaurant} onChange={handleChange}>
+            <option value="">Select restaurant</option>
             {restaurants.map((restaurant) => (
               <option key={restaurant._id} value={restaurant._id}>
                 {restaurant.name}
@@ -146,15 +114,11 @@ function AddOrder() {
 
         <div>
           <label>Menu Item:</label>
-          <select
-            name="menuItem"
-            value={formData.menuItem}
-            onChange={handleChange}
-          >
-            <option value="">Select Menu Item</option>
+          <select name="menuItem" value={formData.menuItem} onChange={handleChange}>
+            <option value="">Select menu item</option>
             {filteredMenuItems.map((item) => (
               <option key={item._id} value={item._id}>
-                {item.name} - ₹{item.price}
+                {item.name}
               </option>
             ))}
           </select>
@@ -167,6 +131,7 @@ function AddOrder() {
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
+            min="1"
           />
         </div>
 
@@ -175,14 +140,14 @@ function AddOrder() {
           <input type="number" value={totalPrice} readOnly />
         </div>
 
-        <button type="submit">Place Order</button>
+        <button type="submit">Add Order</button>
       </form>
 
       {message && (
-  <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
-    {message}
-  </p>
-)}
+        <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

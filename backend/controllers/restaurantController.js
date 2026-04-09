@@ -1,4 +1,7 @@
 const Restaurant = require("../models/Restaurant");
+const Menu = require("../models/MenuItem");
+const Review = require("../models/Review");
+const Order = require("../models/Order");
 const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
 
@@ -68,8 +71,28 @@ const createRestaurant = async (req, res) => {
   }
 };
 
+const deleteRestaurant = async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+
+    await Menu.deleteMany({ restaurant: restaurant._id });
+    await Review.deleteMany({ restaurant: restaurant._id });
+    await Order.deleteMany({ restaurant: restaurant._id });
+    await Restaurant.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Restaurant deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getRestaurants,
   getRestaurantById,
-  createRestaurant
+  createRestaurant,
+  deleteRestaurant
 };

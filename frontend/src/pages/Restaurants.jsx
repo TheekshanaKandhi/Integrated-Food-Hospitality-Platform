@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 function Restaurants() {
@@ -7,22 +7,32 @@ function Restaurants() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCuisine, setSelectedCuisine] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
-        setRestaurants(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
+  const userRole = localStorage.getItem("userRole");
+  const token = localStorage.getItem("token");
 
+  useEffect(() => {
     fetchRestaurants();
   }, []);
+
+  useEffect(() => {
+    const searchValue = searchParams.get("search") || "";
+    setSearchTerm(searchValue);
+  }, [searchParams]);
+
+  const fetchRestaurants = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:5000/api/restaurants");
+      setRestaurants(res.data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   const cuisines = useMemo(() => {
     const uniqueCuisines = [...new Set(restaurants.map((r) => r.cuisine))];
@@ -46,21 +56,48 @@ function Restaurants() {
   const fallbackRestaurantImage =
     "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
 
+  const handleDeleteRestaurant = async (restaurantId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this restaurant?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await axios.delete(
+        `http://127.0.0.1:5000/api/restaurants/${restaurantId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setMessage(res.data.message || "Restaurant deleted successfully");
+      fetchRestaurants();
+    } catch (error) {
+      setMessage(error.response?.data?.message || error.message || "Failed to delete restaurant");
+    }
+  };
+
   if (loading) {
     return <div className="loading-state">Loading restaurants...</div>;
   }
 
   return (
-    <div>
-      <h2>Restaurants</h2>
-      <p>Browse all restaurant partners available in the platform.</p>
-      <p className="page-sub-note">Search, filter, and discover the best places to order from.</p>
-      <p className="section-helper-text">Use search and cuisine filters to quickly find restaurants.</p>
+    <div className="structured-list-page">
+      <section className="page-title-block">
+        <h2>Restaurants</h2>
+        <p>Browse verified restaurant partners available on the platform.</p>
+      </section>
 
-      <div className="restaurant-filter-bar">
+      {message && (
+        <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+          {message}
+        </p>
+      )}
+
+      <section className="filter-panel">
         <input
           type="text"
-          placeholder="Search by restaurant, cuisine, or location"
+          placeholder="Search by restaurant, cuisine, or address"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -75,47 +112,49 @@ function Restaurants() {
             </option>
           ))}
         </select>
-      </div>
+      </section>
 
       {filteredRestaurants.length === 0 ? (
-        <p>No restaurants found.</p>
+        <p className="empty-state">No restaurants found.</p>
       ) : (
-        <div className="restaurant-grid">
+        <div className="official-card-grid">
           {filteredRestaurants.map((restaurant) => (
-            <div
-              className="restaurant-card clickable-card"
-              key={restaurant._id}
-              onClick={() => navigate(`/restaurants/${restaurant._id}`)}
-            >
+            <div className="official-restaurant-card" key={restaurant._id}>
               <img
                 src={restaurant.imageUrl || fallbackRestaurantImage}
                 alt={restaurant.name}
+                onClick={() => navigate(`/restaurants/${restaurant._id}`)}
+                style={{ cursor: "pointer" }}
               />
-              <div className="restaurant-card-body">
-                <div className="title-with-map">
-                  <h3>{restaurant.name}</h3>
-                  {restaurant.mapUrl && (
-                    <a
-                      href={restaurant.mapUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="map-btn"
-                      onClick={(e) => e.stopPropagation()}
+              <div className="official-card-body">
+                <div className="official-card-top">
+                  <h4
+                    onClick={() => navigate(`/restaurants/${restaurant._id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {restaurant.name}
+                  </h4>
+                  <span>⭐ {restaurant.rating || 4.2}</span>
+                </div>
+
+                <p>{restaurant.cuisine}</p>
+                <p className="official-address-text">{restaurant.address}</p>
+
+                <div className="restaurant-card-actions">
+                  <button onClick={() => navigate(`/restaurants/${restaurant._id}`)}>
+                    View Details
+                  </button>
+
+                  {userRole === "admin" && (
+                    <button
+                      className="icon-btn delete-btn"
+                      onClick={() => handleDeleteRestaurant(restaurant._id)}
+                      title="Delete Restaurant"
                     >
-                      📍
-                    </a>
+                      🗑
+                    </button>
                   )}
                 </div>
-                <p>{restaurant.cuisine}</p>
-                <div className="restaurant-meta">
-                  <span>⭐ {restaurant.rating || 4.2}</span>
-                  <span>{restaurant.address}</span>
-                </div>
-                <div className="featured-extra">
-                  <span>30-40 min</span>
-                  <span>₹300 for two</span>
-                </div>
-                <span className="card-cta">Open Details</span>
               </div>
             </div>
           ))}

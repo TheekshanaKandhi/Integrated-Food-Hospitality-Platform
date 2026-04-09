@@ -11,6 +11,7 @@ function AdminDashboard() {
   });
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -18,7 +19,11 @@ function AdminDashboard() {
         const [restaurantsRes, menuRes, ordersRes, reviewsRes] = await Promise.all([
           axios.get("http://127.0.0.1:5000/api/restaurants"),
           axios.get("http://127.0.0.1:5000/api/menu"),
-          axios.get("http://127.0.0.1:5000/api/orders"),
+          axios.get("http://127.0.0.1:5000/api/orders", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }),
           axios.get("http://127.0.0.1:5000/api/reviews")
         ]);
 
@@ -45,108 +50,93 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="admin-dashboard-page">
-      <div className="admin-hero">
+    <div className="admin-structured-page">
+      <section className="admin-dashboard-header">
         <div>
+          <span className="official-badge">Administration</span>
           <h2>Admin Dashboard</h2>
-          <p className="page-sub-note">
-            Manage restaurants, menu items, orders, reviews, and platform activity from one place.
-          </p>
-        </div>
-
-        <div className="admin-hero-badge">
-          <span>Admin Control Panel</span>
-        </div>
-      </div>
-
-      <section className="admin-stats-grid">
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon">🏬</div>
-          <h3>Total Restaurants</h3>
-          <p>{stats.restaurants}</p>
-          <span>Active restaurant partners</span>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon">🍽️</div>
-          <h3>Total Menu Items</h3>
-          <p>{stats.menu}</p>
-          <span>Food items listed</span>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon">🧾</div>
-          <h3>Total Orders</h3>
-          <p>{stats.orders}</p>
-          <span>Orders processed so far</span>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon">⭐</div>
-          <h3>Total Reviews</h3>
-          <p>{stats.reviews}</p>
-          <span>Customer feedback received</span>
+          <p>Monitor platform data and manage operations from a central control panel.</p>
         </div>
       </section>
 
-      <section className="admin-actions-section">
-        <h3>Quick Actions</h3>
-        <div className="admin-actions-grid">
-          <Link to="/add-restaurant" className="admin-action-card">
-            <div className="admin-action-icon">🏬</div>
-            <h4>Add Restaurant</h4>
-            <p>Create and publish a new restaurant listing.</p>
-          </Link>
-
-          <Link to="/add-menu" className="admin-action-card">
-            <div className="admin-action-icon">🍜</div>
-            <h4>Add Menu Item</h4>
-            <p>Add food items, pricing, and images.</p>
-          </Link>
-
-          <Link to="/add-order" className="admin-action-card">
-            <div className="admin-action-icon">🧾</div>
-            <h4>Add Order</h4>
-            <p>Create and manage order entries.</p>
-          </Link>
-
-          <Link to="/add-review" className="admin-action-card">
-            <div className="admin-action-icon">📷</div>
-            <h4>Add Review</h4>
-            <p>Attach ratings, comments, and review photos.</p>
-          </Link>
+      <section className="admin-summary-grid">
+        <div className="admin-summary-card">
+          <h3>{stats.restaurants}</h3>
+          <p>Total Restaurants</p>
+        </div>
+        <div className="admin-summary-card">
+          <h3>{stats.menu}</h3>
+          <p>Total Menu Items</p>
+        </div>
+        <div className="admin-summary-card">
+          <h3>{stats.orders}</h3>
+          <p>Total Orders</p>
+        </div>
+        <div className="admin-summary-card">
+          <h3>{stats.reviews}</h3>
+          <p>Total Reviews</p>
         </div>
       </section>
 
-      <section className="admin-recent-orders">
-        <div className="admin-section-header">
-          <h3>Recent Orders</h3>
-          <Link to="/orders" className="admin-link-btn">
-            View All Orders
-          </Link>
-        </div>
-
-        {recentOrders.length === 0 ? (
-          <p className="empty-state">No recent orders found.</p>
-        ) : (
-          <div className="admin-orders-table">
-            <div className="admin-orders-head">
-              <span>Customer</span>
-              <span>Restaurant</span>
-              <span>Total</span>
-              <span>Status</span>
-            </div>
-
-            {recentOrders.map((order) => (
-              <div className="admin-orders-row" key={order._id}>
-                <span>{order.customerName || order.user?.name || "Customer"}</span>
-                <span>{order.restaurant?.name || "Restaurant"}</span>
-                <span>₹{order.totalPrice}</span>
-                <span>{order.status}</span>
-              </div>
-            ))}
+      <section className="official-section-block">
+        <div className="section-heading-row">
+          <div>
+            <h3>Administrative Actions</h3>
+            <p>Quick access to essential management workflows.</p>
           </div>
-        )}
+        </div>
+
+        <div className="admin-action-grid-structured">
+          <Link to="/add-restaurant" className="admin-panel-tile">
+            <h4>Add Restaurant</h4>
+            <p>Create and publish a restaurant entry with images and maps.</p>
+          </Link>
+
+          <Link to="/add-menu" className="admin-panel-tile">
+            <h4>Add Menu Item</h4>
+            <p>Add dishes, categories, prices, and menu item photos.</p>
+          </Link>
+
+          <Link to="/add-order" className="admin-panel-tile">
+            <h4>Create Order</h4>
+            <p>Manage operational order records from the admin side.</p>
+          </Link>
+
+          <Link to="/reviews" className="admin-panel-tile">
+            <h4>View Reviews</h4>
+            <p>Inspect customer ratings, review comments, and uploaded images.</p>
+          </Link>
+        </div>
+      </section>
+
+      <section className="official-section-block">
+        <div className="section-heading-row">
+          <div>
+            <h3>Recent Orders</h3>
+            <p>Most recent order activity on the platform.</p>
+          </div>
+          <Link to="/orders" className="section-link-btn">
+            View All
+          </Link>
+        </div>
+
+        <div className="official-table">
+          <div className="official-table-head">
+            <span>Customer</span>
+            <span>Restaurant</span>
+            <span>Total</span>
+            <span>Status</span>
+          </div>
+
+          {recentOrders.map((order) => (
+            <div className="official-table-row" key={order._id}>
+              <span>{order.customerName || order.user?.name || "Customer"}</span>
+              <span>{order.restaurant?.name || "Restaurant"}</span>
+              <span>₹{order.totalPrice}</span>
+              <span>{order.status}</span>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

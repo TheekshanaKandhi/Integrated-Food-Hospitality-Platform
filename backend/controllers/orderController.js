@@ -42,31 +42,97 @@ const placeOrder = async (req, res) => {
 
 const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate("user", "name email")
-      .populate("restaurant", "name cuisine address")
-      .populate("items.menuItem", "name price category imageUrl");
+    console.log("getOrders called");
+    console.log("req.user:", req.user);
 
+    let orders;
+
+    // If user is admin, show all orders
+    if (req.user && req.user.role === "admin") {
+      console.log("User is admin, showing all orders");
+      orders = await Order.find()
+        .populate("user", "name email")
+        .populate({
+          path: "restaurant",
+          select: "name cuisine address",
+          model: "Restaurant"
+        })
+        .populate({
+          path: "items.menuItem",
+          select: "name price category imageUrl",
+          model: "MenuItem"
+        });
+    } else {
+      // For regular users, show only their orders
+      console.log("User is customer, showing their orders for user ID:", req.user.id);
+      orders = await Order.find({ user: req.user.id })
+        .populate("user", "name email")
+        .populate({
+          path: "restaurant",
+          select: "name cuisine address",
+          model: "Restaurant"
+        })
+        .populate({
+          path: "items.menuItem",
+          select: "name price category imageUrl",
+          model: "MenuItem"
+        });
+    }
+
+    console.log("Found orders:", orders.length);
     res.status(200).json(orders);
   } catch (error) {
+    console.log("Error in getOrders:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
+const validStatuses = ["Placed", "Confirmed", "Preparing", "Delivered"];
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    const normalizedStatus = String(status || "").trim().toLowerCase();
+    const mappedStatus = validStatuses.find(
+      (valid) => valid.toLowerCase() === normalizedStatus
+    );
+
+    if (!mappedStatus) {
+      return res.status(400).json({
+        message: "Invalid order status. Valid values are Placed, Confirmed, Preparing, Delivered."
+      });
+    }
 
     const order = await Order.findByIdAndUpdate(
       req.params.id,
-      { status },
+      { status: mappedStatus },
       { new: true }
     );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
 
     res.status(200).json({
       message: "Order status updated successfully",
       order
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    await order.remove();
+
+    res.status(200).json({ message: "Order deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -417,5 +483,6 @@ module.exports = {
   placeOrder,
   getOrders,
   updateOrderStatus,
+  deleteOrder,
   downloadInvoice
 };

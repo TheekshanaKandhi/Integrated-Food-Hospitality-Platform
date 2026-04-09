@@ -59,73 +59,75 @@ function App() {
 
   return (
     <div className="app-container">
-      <div className="top-bar">
-        <div className="profile-section">
-          {token ? (
-            <>
-              <div className="profile-circle">{getInitial()}</div>
-              <div className="profile-info">
-                <span className="profile-email">
-                  {userEmail} {userRole === "admin" ? "(Admin)" : "(User)"}
-                </span>
+      <header className="official-header">
+        <div className="official-header-inner">
+          <div className="brand-block" onClick={() => navigate("/")}>
+            <div className="brand-logo">FD</div>
+            <div className="brand-text">
+              <h1>Food Delivery Platform</h1>
+              <p>Professional food ordering and management system</p>
+            </div>
+          </div>
+
+          <div className="header-right">
+            {token ? (
+              <div className="profile-panel">
+                <div className="profile-circle">{getInitial()}</div>
+                <div className="profile-meta">
+                  <span className="profile-email">{userEmail}</span>
+                  <span className="profile-role">
+                    {userRole === "admin" ? "Administrator" : "Customer"}
+                  </span>
+                </div>
                 <button className="logout-btn" onClick={handleLogout}>
                   Logout
                 </button>
               </div>
-            </>
+            ) : (
+              <div className="guest-panel">
+                <button className="header-outline-btn" onClick={() => navigate("/login")}>
+                  User Login
+                </button>
+                <button className="header-solid-btn" onClick={() => navigate("/admin-login")}>
+                  Admin Login
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <nav className="official-navbar">
+        <div className="official-navbar-inner">
+          {userRole === "admin" ? (
+            <div className="nav-links">
+              <Link to="/admin-dashboard">Dashboard</Link>
+              <Link to="/restaurants">Restaurants</Link>
+              <Link to="/menu">Menu</Link>
+              <Link to="/orders">Orders</Link>
+              <Link to="/reviews">Reviews</Link>
+            </div>
           ) : (
-            <div className="profile-info">
-              <span className="profile-email">Guest User</span>
+            <div className="nav-links">
+              <Link to="/">Home</Link>
+              <Link to="/restaurants">Restaurants</Link>
+              <Link to="/menu">Menu</Link>
+              <Link to="/orders">Orders</Link>
+              <Link to="/reviews">Reviews</Link>
+              <Link to="/cart">Cart ({cartCount})</Link>
+            </div>
+          )}
+
+          {!token && (
+            <div className="nav-auth-links">
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
             </div>
           )}
         </div>
-      </div>
-
-      <div className="app-header">
-        <div className="app-logo">🍽️</div>
-        <div className="app-title-block">
-          <h1>Food Delivery and Dine-Out Platform</h1>
-          <p className="app-subtitle">
-            Order food, explore restaurants, manage reviews, invoices, and platform operations.
-          </p>
-        </div>
-      </div>
-
-      <nav className="navbar">
-        <div className="nav-section-title">Customer</div>
-        <div className="nav-group">
-          <Link to="/">Home</Link>
-          <Link to="/restaurants">Restaurants</Link>
-          <Link to="/menu">Menu</Link>
-          <Link to="/cart">Cart ({cartCount})</Link>
-          <Link to="/checkout">Checkout</Link>
-          <Link to="/orders">Orders</Link>
-          <Link to="/reviews">Reviews</Link>
-        </div>
-
-        <div className="nav-section-title">Account</div>
-        <div className="nav-group">
-          {!token && <Link to="/login">User Login</Link>}
-          {!token && <Link to="/register">Register</Link>}
-          {!token && <Link to="/admin-login">Admin Login</Link>}
-          {token && <Link to="/protected">Protected</Link>}
-        </div>
-
-        {userRole === "admin" && (
-          <>
-            <div className="nav-section-title admin-title">Admin</div>
-            <div className="nav-group admin-links">
-              <Link to="/admin-dashboard">Dashboard</Link>
-              <Link to="/add-restaurant">Add Restaurant</Link>
-              <Link to="/add-menu">Add Menu</Link>
-              <Link to="/add-order">Add Order</Link>
-              <Link to="/add-review">Add Review</Link>
-            </div>
-          </>
-        )}
       </nav>
 
-      <div className="page-content">
+      <main className="page-content official-page-width">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -140,6 +142,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/restaurants"
             element={
@@ -148,6 +151,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/restaurants/:id"
             element={
@@ -156,6 +160,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/menu"
             element={
@@ -164,6 +169,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/cart"
             element={
@@ -172,6 +178,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/checkout"
             element={
@@ -180,6 +187,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/orders"
             element={
@@ -188,6 +196,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/reviews"
             element={
@@ -196,6 +205,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/add-review"
             element={
@@ -213,6 +223,7 @@ function App() {
               </AdminRoute>
             }
           />
+
           <Route
             path="/add-restaurant"
             element={
@@ -221,6 +232,7 @@ function App() {
               </AdminRoute>
             }
           />
+
           <Route
             path="/add-menu"
             element={
@@ -229,6 +241,7 @@ function App() {
               </AdminRoute>
             }
           />
+
           <Route
             path="/add-order"
             element={
@@ -238,23 +251,41 @@ function App() {
             }
           />
         </Routes>
-      </div>
+      </main>
 
-      <footer className="app-footer">
-        <div className="footer-brand">
-          <h3>Food Delivery and Dine-Out Platform</h3>
-          <p>Discover restaurants, explore menus, enjoy quick ordering, and manage everything professionally.</p>
+      <footer className="official-footer">
+        <div className="official-footer-inner">
+          <div className="footer-col">
+            <h3>Food Delivery Platform</h3>
+            <p>
+              A modern platform for restaurant discovery, food ordering,
+              reviews, billing, and administrative management.
+            </p>
+          </div>
+
+          <div className="footer-col">
+            <h4>Quick Links</h4>
+            <div className="footer-link-list">
+              <Link to="/">Home</Link>
+              <Link to="/restaurants">Restaurants</Link>
+              <Link to="/menu">Menu</Link>
+              <Link to="/orders">Orders</Link>
+            </div>
+          </div>
+
+          <div className="footer-col">
+            <h4>Access</h4>
+            <div className="footer-link-list">
+              <Link to="/login">User Login</Link>
+              <Link to="/register">Register</Link>
+              <Link to="/admin-login">Admin Login</Link>
+            </div>
+          </div>
         </div>
 
-        <div className="footer-links">
-          <Link to="/">Home</Link>
-          <Link to="/restaurants">Restaurants</Link>
-          <Link to="/menu">Menu</Link>
-          <Link to="/orders">Orders</Link>
-          <Link to="/reviews">Reviews</Link>
+        <div className="official-footer-bottom">
+          © 2026 Food Delivery Platform. All rights reserved.
         </div>
-
-        <p className="footer-copy">© 2026 Food Delivery and Dine-Out Platform. All rights reserved.</p>
       </footer>
     </div>
   );

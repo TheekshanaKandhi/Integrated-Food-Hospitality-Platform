@@ -12,6 +12,7 @@ function AddOrder() {
     quantity: 1
   });
   const [message, setMessage] = useState("");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +68,11 @@ function AddOrder() {
         totalPrice
       };
 
-      const res = await axios.post("http://127.0.0.1:5000/api/orders", payload);
+      const res = await axios.post("http://127.0.0.1:5000/api/orders", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setMessage(res.data.message || "Order added successfully");
 
       setFormData({

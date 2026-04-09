@@ -1,43 +1,48 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 function RestaurantDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
+  const userRole = localStorage.getItem("userRole");
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const restaurantsRes = await axios.get("http://127.0.0.1:5000/api/restaurants");
-        const menuRes = await axios.get("http://127.0.0.1:5000/api/menu");
-
-        const foundRestaurant = restaurantsRes.data.find((r) => r._id === id);
-        setRestaurant(foundRestaurant || null);
-        setMenuItems(menuRes.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
+    fetchRestaurantDetails();
   }, [id]);
 
-  const filteredMenuItems = useMemo(() => {
-    return menuItems.filter((item) => item.restaurant && item.restaurant._id === id);
-  }, [menuItems, id]);
+  const fetchRestaurantDetails = async () => {
+    try {
+      const [restaurantRes, menuRes] = await Promise.all([
+        axios.get(`http://127.0.0.1:5000/api/restaurants/${id}`),
+        axios.get("http://127.0.0.1:5000/api/menu")
+      ]);
 
-  const fallbackRestaurantBanner =
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80";
+      setRestaurant(restaurantRes.data);
 
-  const fallbackMenuImage =
-    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80";
+      const filteredMenu = menuRes.data.filter((item) => {
+        const restaurantId =
+          typeof item.restaurant === "object" ? item.restaurant._id : item.restaurant;
+        return restaurantId === id;
+      });
+
+      setMenuItems(filteredMenu);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   const handleAddToCart = (item) => {
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
-
     const existingItem = existingCart.find((cartItem) => cartItem._id === item._id);
 
     let updatedCart;
@@ -57,67 +62,138 @@ function RestaurantDetails() {
     setTimeout(() => setMessage(""), 2500);
   };
 
+  const handleEditMenu = (item) => {
+    navigate("/add-menu", { state: { editItem: item } });
+  };
+
+  const handleDeleteMenu = async (menuId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this menu item?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await axios.delete(`http://127.0.0.1:5000/api/menu/${menuId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setMessage(res.data.message || "Menu item deleted successfully");
+      fetchRestaurantDetails();
+    } catch (error) {
+      setMessage(error.response?.data?.message || error.message || "Failed to delete menu item");
+    }
+  };
+
+  const fallbackRestaurantImage =
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
+
+  const fallbackMenuImage =
+    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80";
+
+  if (loading) {
+    return <div className="loading-state">Loading restaurant details...</div>;
+  }
+
   if (!restaurant) {
-    return <p>Restaurant not found.</p>;
+    return <div className="error-message">Restaurant not found</div>;
   }
 
   return (
-    <div>
+    <div className="structured-list-page">
+      {message && (
+        <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
+          {message}
+        </p>
+      )}
+
       <div className="restaurant-details-banner">
         <img
-          src={restaurant.imageUrl || fallbackRestaurantBanner}
+          src={restaurant.imageUrl || fallbackRestaurantImage}
           alt={restaurant.name}
         />
       </div>
 
       <div className="restaurant-details-header">
-        <div className="title-with-map details-title-row">
-          <h2>{restaurant.name}</h2>
+        <div className="title-with-map">
+          <div>
+            <h2>{restaurant.name}</h2>
+            <p>{restaurant.cuisine}</p>
+            <p className="official-address-text">{restaurant.address}</p>
+          </div>
+
           {restaurant.mapUrl && (
             <a
               href={restaurant.mapUrl}
               target="_blank"
               rel="noreferrer"
-              className="map-btn details-map-btn"
+              className="map-btn"
+              title="Open Map"
             >
               📍
             </a>
           )}
         </div>
-        <p>{restaurant.cuisine} • {restaurant.address}</p>
-        <span className="restaurant-tagline">Popular choice for quick bites and family meals</span>
-        <p className="page-sub-note">Browse popular dishes, prices, and add your favourites to cart.</p>
-        <div className="restaurant-details-meta">
-          <span>⭐ {restaurant.rating || 4.2}</span>
-          <span>30-40 min</span>
-          <span>₹300 for two</span>
-        </div>
       </div>
 
-      {message && <div className="toast">{message}</div>}
+      <section className="official-section-block">
+        <div className="section-heading-row">
+          <div>
+            <h3>Menu Items</h3>
+            <p>Available dishes from this restaurant.</p>
+          </div>
 
-      <section className="restaurant-menu-section">
-        <p className="section-helper-text">Choose your favourite dishes and add them to cart.</p>
-        <h3>Menu</h3>
+          {userRole === "admin" && (
+            <button
+              className="section-link-btn"
+              onClick={() => navigate("/add-menu", { state: { selectedRestaurant: restaurant._id } })}
+            >
+              Add Menu Item
+            </button>
+          )}
+        </div>
 
-        {filteredMenuItems.length === 0 ? (
+        {menuItems.length === 0 ? (
           <p className="empty-state">No menu items found for this restaurant.</p>
         ) : (
-          <div className="menu-grid">
-            {filteredMenuItems.map((item) => (
-              <div className="menu-card" key={item._id}>
+          <div className="official-card-grid">
+            {menuItems.map((item) => (
+              <div className="official-menu-card" key={item._id}>
                 <img
                   src={item.imageUrl || fallbackMenuImage}
                   alt={item.name}
                 />
-                <div className="menu-card-body">
-                  <h3>{item.name}</h3>
-                  <span className="food-badge">Veg</span>
-                  <p>{item.category}</p>
-                  <span className="menu-note">Freshly prepared and delivered hot</span>
-                  <div className="menu-meta">
+                <div className="official-card-body">
+                  <div className="official-card-top">
+                    <h4>{item.name}</h4>
                     <span>₹{item.price}</span>
-                    <button onClick={() => handleAddToCart(item)}>Add</button>
+                  </div>
+
+                  <p>{item.category}</p>
+
+                  <div className="restaurant-card-actions">
+                    <button onClick={() => handleAddToCart(item)}>
+                      Add to Cart
+                    </button>
+
+                    {userRole === "admin" && (
+                      <>
+                        <button
+                          className="icon-btn edit-btn"
+                          onClick={() => handleEditMenu(item)}
+                          title="Edit Menu"
+                        >
+                          ✎
+                        </button>
+
+                        <button
+                          className="icon-btn delete-btn"
+                          onClick={() => handleDeleteMenu(item._id)}
+                          title="Delete Menu"
+                        >
+                          🗑
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

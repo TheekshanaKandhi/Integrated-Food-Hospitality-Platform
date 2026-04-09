@@ -23,7 +23,9 @@ const reviewSchema = new mongoose.Schema(
     },
     comment: {
       type: String,
-      required: true
+      trim: true,
+      required: false,
+      default: ""
     },
     imageUrl: {
       type: String,

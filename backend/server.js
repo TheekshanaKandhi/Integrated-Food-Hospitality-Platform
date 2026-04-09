@@ -3,6 +3,13 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
+// Import models to ensure they're registered
+const User = require("./models/User");
+const Restaurant = require("./models/Restaurant");
+const MenuItem = require("./models/MenuItem");
+const Order = require("./models/Order");
+const Review = require("./models/Review");
+
 const authRoutes = require("./routes/authRoutes");
 const restaurantRoutes = require("./routes/restaurantRoutes");
 const menuRoutes = require("./routes/menuRoutes");

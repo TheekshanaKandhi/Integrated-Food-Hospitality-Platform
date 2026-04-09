@@ -32,7 +32,14 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
+    console.log('Received req.body:', req.body);
+    console.log('Received req.file:', req.file ? 'File present' : 'No file');
+
     const { restaurant, order, rating, comment } = req.body;
+    // Normalize comment input so the schema default can apply safely
+    const commentValue = (comment !== undefined && comment !== null && String(comment).trim().length > 0)
+      ? String(comment).trim()
+      : "";
 
     let imageUrl = "";
 
@@ -41,20 +48,25 @@ const createReview = async (req, res) => {
       imageUrl = uploadedImage.secure_url;
     }
 
-    const review = await Review.create({
+    const reviewData = {
       user: req.user.id,
       restaurant,
       order,
       rating: Number(rating),
-      comment,
+      comment: commentValue,
       imageUrl
-    });
+    };
+
+    console.log('Creating review with data:', reviewData);
+
+    const review = await Review.create(reviewData);
 
     res.status(201).json({
-      message: "Review added successfully",
+      message: "Review submitted successfully!",
       review
     });
   } catch (error) {
+    console.error("Review creation error:", error);
     res.status(500).json({ message: error.message });
   }
 };

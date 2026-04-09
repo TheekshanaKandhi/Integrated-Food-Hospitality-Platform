@@ -10,9 +10,12 @@ function Home() {
     reviews: 0
   });
   const [restaurants, setRestaurants] = useState([]);
+  const [allRestaurants, setAllRestaurants] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
   const [heroSearch, setHeroSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,7 +23,11 @@ function Home() {
         const [restaurantsRes, menuRes, ordersRes, reviewsRes] = await Promise.all([
           axios.get("http://127.0.0.1:5000/api/restaurants"),
           axios.get("http://127.0.0.1:5000/api/menu"),
-          axios.get("http://127.0.0.1:5000/api/orders"),
+          axios.get("http://127.0.0.1:5000/api/orders", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }),
           axios.get("http://127.0.0.1:5000/api/reviews")
         ]);
 
@@ -31,7 +38,9 @@ function Home() {
           reviews: reviewsRes.data.length
         });
 
-        setRestaurants(restaurantsRes.data);
+        setAllRestaurants(restaurantsRes.data);
+        setRestaurants(restaurantsRes.data.slice(0, 6));
+        setMenuItems(menuRes.data);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -45,13 +54,31 @@ function Home() {
   const fallbackRestaurantImage =
     "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
 
-  const goToCategory = (category) => {
-    navigate(`/menu?search=${encodeURIComponent(category)}`);
-  };
-
   const handleHeroSearch = () => {
     if (!heroSearch.trim()) return;
-    navigate(`/menu?search=${encodeURIComponent(heroSearch.trim())}`);
+
+    const search = heroSearch.trim().toLowerCase();
+
+    // Check if search matches any restaurant names or cuisines
+    const matchingRestaurants = allRestaurants.filter(r =>
+      r.name.toLowerCase().includes(search) ||
+      r.cuisine.toLowerCase().includes(search)
+    );
+
+    // Check if search matches any menu items
+    const matchingMenuItems = menuItems.filter(item =>
+      item.name.toLowerCase().includes(search) ||
+      item.category.toLowerCase().includes(search) ||
+      item.restaurant.name.toLowerCase().includes(search)
+    );
+
+    // If more restaurants match than menu items, or if restaurants match and no menu items, go to restaurants
+    if (matchingRestaurants.length > matchingMenuItems.length || (matchingRestaurants.length > 0 && matchingMenuItems.length === 0)) {
+      navigate(`/restaurants?search=${encodeURIComponent(heroSearch.trim())}`);
+    } else {
+      // Otherwise, go to menu search
+      navigate(`/menu?search=${encodeURIComponent(heroSearch.trim())}`);
+    }
   };
 
   const handleHeroKeyDown = (e) => {
@@ -65,25 +92,20 @@ function Home() {
   }
 
   return (
-    <div>
-      <section className="hero-section">
-        <div className="hero-text">
-          <h2>Discover the best food and dining near you</h2>
+    <div className="home-structured-page">
+      <section className="official-hero">
+        <div className="official-hero-left">
+          <span className="official-badge">Trusted food ordering experience</span>
+          <h2>Discover restaurants and order food with a professional digital experience</h2>
           <p>
-            Order from top restaurants, explore menus, track orders, and enjoy
-            a modern food delivery experience.
+            Explore verified restaurants, browse curated menus, place orders,
+            review your purchases, and download invoices from a structured platform.
           </p>
 
-          <div className="hero-tags">
-            <span>Fast Delivery</span>
-            <span>Top Rated Restaurants</span>
-            <span>Easy Ordering</span>
-          </div>
-
-          <div className="hero-search">
+          <div className="official-hero-search">
             <input
               type="text"
-              placeholder="Search for restaurant, cuisine or dish"
+              placeholder="Search restaurant, cuisine or dish"
               value={heroSearch}
               onChange={(e) => setHeroSearch(e.target.value)}
               onKeyDown={handleHeroKeyDown}
@@ -91,112 +113,69 @@ function Home() {
             <button onClick={handleHeroSearch}>Search</button>
           </div>
 
-          <div className="hero-cta-row">
-            <button className="secondary-cta" onClick={() => navigate("/restaurants")}>
-              Explore Restaurants
-            </button>
-            <button className="secondary-cta" onClick={() => navigate("/menu")}>
+          <div className="official-hero-actions">
+            <button onClick={() => navigate("/restaurants")}>Explore Restaurants</button>
+            <button className="hero-outline-btn" onClick={() => navigate("/menu")}>
               Browse Menu
             </button>
           </div>
         </div>
 
-        <div className="hero-image">
+        <div className="official-hero-right">
           <img
             src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80"
-            alt="Food Banner"
+            alt="Food ordering"
           />
         </div>
       </section>
 
-      <section className="categories-section">
-        <h3>Popular Categories</h3>
-        <div className="categories-grid">
-          <div className="category-card" onClick={() => goToCategory("Biryani")}>🍚 Biryani</div>
-          <div className="category-card" onClick={() => goToCategory("Pizza")}>🍕 Pizza</div>
-          <div className="category-card" onClick={() => goToCategory("Burger")}>🍔 Burgers</div>
-          <div className="category-card" onClick={() => goToCategory("South Indian")}>🥘 South Indian</div>
-          <div className="category-card" onClick={() => goToCategory("Dessert")}>🍰 Desserts</div>
-          <div className="category-card" onClick={() => goToCategory("Beverage")}>🥤 Beverages</div>
+      <section className="official-stats-section">
+        <div className="official-stat-box">
+          <h3>{counts.restaurants}</h3>
+          <p>Restaurants</p>
+        </div>
+        <div className="official-stat-box">
+          <h3>{counts.menu}</h3>
+          <p>Menu Items</p>
+        </div>
+        <div className="official-stat-box">
+          <h3>{counts.orders}</h3>
+          <p>Orders</p>
+        </div>
+        <div className="official-stat-box">
+          <h3>{counts.reviews}</h3>
+          <p>Reviews</p>
         </div>
       </section>
 
-      <section className="featured-section">
-        <h3>Featured Restaurants</h3>
-        <div className="featured-grid">
+      <section className="official-section-block">
+        <div className="section-heading-row">
+          <div>
+            <h3>Featured Restaurants</h3>
+            <p>Selected restaurants available on the platform.</p>
+          </div>
+          <Link to="/restaurants" className="section-link-btn">
+            View All
+          </Link>
+        </div>
+
+        <div className="official-card-grid">
           {restaurants.map((restaurant) => (
-            <Link
-              to={`/restaurants/${restaurant._id}`}
-              className="featured-card-link"
-              key={restaurant._id}
-            >
-              <div className="featured-card">
-                <img
-                  src={restaurant.imageUrl || fallbackRestaurantImage}
-                  alt={restaurant.name}
-                />
-                <div className="featured-card-body">
-                  <div className="title-with-map">
-                    <h4>{restaurant.name}</h4>
-                    {restaurant.mapUrl && (
-                      <a
-                        href={restaurant.mapUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="map-btn"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        📍
-                      </a>
-                    )}
-                  </div>
-                  <p>{restaurant.cuisine}</p>
-                  <div className="featured-meta">
-                    <span>⭐ {restaurant.rating || 4.2}</span>
-                    <span>{restaurant.address}</span>
-                  </div>
-                  <div className="featured-extra">
-                    <span>30-40 min</span>
-                    <span>₹300 for two</span>
-                  </div>
-                  <span className="card-cta">View Restaurant</span>
+            <Link to={`/restaurants/${restaurant._id}`} className="official-restaurant-card" key={restaurant._id}>
+              <img
+                src={restaurant.imageUrl || fallbackRestaurantImage}
+                alt={restaurant.name}
+              />
+              <div className="official-card-body">
+                <div className="official-card-top">
+                  <h4>{restaurant.name}</h4>
+                  <span>⭐ {restaurant.rating || 4.2}</span>
                 </div>
+                <p>{restaurant.cuisine}</p>
+                <p className="official-address-text">{restaurant.address}</p>
               </div>
             </Link>
           ))}
-        </div>
-      </section>
-
-      <section className="dashboard-section">
-        <h3>Platform Overview</h3>
-        <div className="dashboard-grid">
-          <div className="dashboard-card">
-            <div className="dashboard-icon">🏬</div>
-            <h3>Total Restaurants</h3>
-            <p>{counts.restaurants}</p>
-            <span className="dashboard-note">Available dining partners</span>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-icon">🍜</div>
-            <h3>Total Menu Items</h3>
-            <p>{counts.menu}</p>
-            <span className="dashboard-note">Dishes ready to explore</span>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-icon">🧾</div>
-            <h3>Total Orders</h3>
-            <p>{counts.orders}</p>
-            <span className="dashboard-note">Orders placed on platform</span>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-icon">⭐</div>
-            <h3>Total Reviews</h3>
-            <p>{counts.reviews}</p>
-            <span className="dashboard-note">Customer feedback collected</span>
-          </div>
         </div>
       </section>
     </div>

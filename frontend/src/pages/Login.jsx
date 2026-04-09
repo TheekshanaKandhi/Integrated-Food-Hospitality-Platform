@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -34,9 +37,12 @@ function Login() {
         loginType: "user"
       });
 
-      setMessage(res.data.message);
       saveUserSession(res.data.user, res.data.token);
-      window.location.href = "/";
+      setMessage(res.data.message || "Login successful");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
     } catch (error) {
       setMessage(error.response?.data?.message || error.message || "Login failed");
     }
@@ -53,12 +59,15 @@ function Login() {
       });
 
       saveUserSession(res.data.user, res.data.token);
-      setMessage(res.data.message);
-      window.location.href = "/";
+      setMessage(res.data.message || "Google login successful");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
     } catch (error) {
       console.error("Google login error code:", error.code);
       console.error("Google login error message:", error.message);
-      setMessage(`${error.code || ""} ${error.message || "Google login failed"}`.trim());
+      setMessage(error.response?.data?.message || error.message || "Google login failed");
     }
   };
 
@@ -74,10 +83,10 @@ function Login() {
           </p>
 
           <div className="auth-feature-list">
-            <span>🍽️ Explore restaurants</span>
-            <span>🛒 Quick checkout</span>
-            <span>🧾 Invoice downloads</span>
-            <span>⭐ Reviews and ratings</span>
+            <span>Explore restaurants</span>
+            <span>Quick checkout</span>
+            <span>Invoice downloads</span>
+            <span>Reviews and ratings</span>
           </div>
         </div>
 
@@ -122,7 +131,9 @@ function Login() {
                 />
               </div>
 
-              <button type="submit" className="auth-main-btn">Login</button>
+              <button type="submit" className="auth-main-btn">
+                Login
+              </button>
             </form>
 
             {message && (

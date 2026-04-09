@@ -73,7 +73,13 @@ function Checkout() {
     }));
 
     try {
-      await axios.post("http://127.0.0.1:5000/api/orders", {
+      const token = localStorage.getItem("token");
+      console.log("Placing order...");
+      console.log("Token exists:", !!token);
+      console.log("User ID:", loggedInUser._id);
+      console.log("Cart items:", cartItems.length);
+
+      const response = await axios.post("http://127.0.0.1:5000/api/orders", {
         user: loggedInUser._id,
         restaurant: restaurantId,
         items,
@@ -83,7 +89,13 @@ function Checkout() {
         paymentMethod: formData.paymentMethod,
         paymentStatus:
           formData.paymentMethod === "Cash on Delivery" ? "Pending" : "Paid"
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
+
+      console.log("Order placed successfully:", response.data);
 
       localStorage.removeItem("cart");
       setCartItems([]);

@@ -12,7 +12,7 @@ function Reviews() {
         setReviews(res.data);
         setLoading(false);
       } catch (error) {
-        console.log(error);
+        console.log("Error fetching reviews:", error);
         setLoading(false);
       }
     };

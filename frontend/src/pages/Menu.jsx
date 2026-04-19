@@ -38,7 +38,7 @@ function Menu() {
       return (
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+        item.restaurant?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
   }, [menuItems, searchTerm]);
@@ -109,31 +109,31 @@ function Menu() {
         />
       </section>
 
-      {message && (
-        <p className={message.toLowerCase().includes("successfully") ? "success-message" : "error-message"}>
-          {message}
-        </p>
-      )}
+      {message && <div className="toast">{message}</div>}
 
       {filteredMenuItems.length === 0 ? (
         <p className="empty-state">No menu items found.</p>
       ) : (
-        <div className="official-card-grid">
+        <div className="official-card-grid menu-uniform-grid">
           {filteredMenuItems.map((item) => (
-            <div className="official-menu-card" key={item._id}>
+            <div className="official-menu-card menu-uniform-card" key={item._id}>
               <img
                 src={item.imageUrl || fallbackMenuImage}
                 alt={item.name}
               />
-              <div className="official-card-body">
-                <div className="official-card-top">
-                  <h4>{item.name}</h4>
-                  <span>₹{item.price}</span>
-                </div>
-                <p>{item.category}</p>
-                <p className="official-address-text">{item.restaurant.name}</p>
 
-                <div className="restaurant-card-actions">
+              <div className="official-card-body menu-uniform-body">
+                <div className="official-card-top menu-uniform-top">
+                  <h4 className="menu-name-clamp">{item.name}</h4>
+                  <span className="menu-price-fixed">₹{item.price}</span>
+                </div>
+
+                <p className="menu-category-clamp">{item.category}</p>
+                <p className="official-address-text menu-restaurant-clamp">
+                  {item.restaurant?.name || "Restaurant"}
+                </p>
+
+                <div className="restaurant-card-actions menu-actions-bottom">
                   <button onClick={() => handleAddToCart(item)}>
                     Add to Cart
                   </button>

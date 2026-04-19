@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
@@ -8,6 +8,7 @@ function RestaurantDetails() {
 
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -20,9 +21,14 @@ function RestaurantDetails() {
 
   const fetchRestaurantDetails = async () => {
     try {
-      const [restaurantRes, menuRes] = await Promise.all([
+      const [restaurantRes, menuRes, reviewRes] = await Promise.all([
         axios.get(`http://127.0.0.1:5000/api/restaurants/${id}`),
-        axios.get("http://127.0.0.1:5000/api/menu")
+        axios.get("http://127.0.0.1:5000/api/menu"),
+        axios.get("http://127.0.0.1:5000/api/reviews", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
       ]);
 
       setRestaurant(restaurantRes.data);
@@ -33,13 +39,26 @@ function RestaurantDetails() {
         return restaurantId === id;
       });
 
+      const filteredReviews = reviewRes.data.filter((review) => {
+        const reviewRestaurantId =
+          typeof review.restaurant === "object" ? review.restaurant._id : review.restaurant;
+        return reviewRestaurantId === id;
+      });
+
       setMenuItems(filteredMenu);
+      setReviews(filteredReviews);
       setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
     }
   };
+
+  const averageRating = useMemo(() => {
+    if (!reviews.length) return 0;
+    const total = reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0);
+    return (total / reviews.length).toFixed(1);
+  }, [reviews]);
 
   const handleAddToCart = (item) => {
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -84,6 +103,14 @@ function RestaurantDetails() {
     }
   };
 
+  const handleEditRestaurant = () => {
+    navigate("/add-restaurant", { state: { editRestaurant: restaurant } });
+  };
+
+  const handleAddMenuHere = () => {
+    navigate("/add-menu", { state: { restaurantId: restaurant._id } });
+  };
+
   const fallbackRestaurantImage =
     "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
 
@@ -119,19 +146,49 @@ function RestaurantDetails() {
             <h2>{restaurant.name}</h2>
             <p>{restaurant.cuisine}</p>
             <p className="official-address-text">{restaurant.address}</p>
+
+            <div className="restaurant-rating-inline">
+              <span className="restaurant-rating-badge">
+                {reviews.length > 0 ? `${averageRating} ★` : "No Ratings Yet"}
+              </span>
+              <span className="restaurant-review-count">
+                {reviews.length} review{reviews.length !== 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
 
-          {restaurant.mapUrl && (
-            <a
-              href={restaurant.mapUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="map-btn"
-              title="Open Map"
-            >
-              📍
-            </a>
-          )}
+          <div className="restaurant-detail-top-actions">
+            {restaurant.mapUrl && (
+              <a
+                href={restaurant.mapUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="map-btn"
+                title="Open Map"
+              >
+                📍
+              </a>
+            )}
+
+            {userRole === "admin" && (
+              <>
+                <button
+                  className="icon-btn edit-btn"
+                  onClick={handleEditRestaurant}
+                  title="Edit Restaurant"
+                >
+                  ✎
+                </button>
+
+                <button
+                  className="admin-small-btn"
+                  onClick={handleAddMenuHere}
+                >
+                  Add Menu
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -141,15 +198,6 @@ function RestaurantDetails() {
             <h3>Menu Items</h3>
             <p>Available dishes from this restaurant.</p>
           </div>
-
-          {userRole === "admin" && (
-            <button
-              className="section-link-btn"
-              onClick={() => navigate("/add-menu", { state: { selectedRestaurant: restaurant._id } })}
-            >
-              Add Menu Item
-            </button>
-          )}
         </div>
 
         {menuItems.length === 0 ? (
@@ -196,6 +244,50 @@ function RestaurantDetails() {
                     )}
                   </div>
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="official-section-block">
+        <div className="section-heading-row">
+          <div>
+            <h3>Customer Reviews</h3>
+            <p>See what customers are saying about this restaurant.</p>
+          </div>
+        </div>
+
+        {reviews.length === 0 ? (
+          <p className="empty-state">No reviews available for this restaurant yet.</p>
+        ) : (
+          <div className="reviews-grid">
+            {reviews.map((review) => (
+              <div className="review-card" key={review._id}>
+                <div className="review-top">
+                  <h3>
+                    {typeof review.user === "object"
+                      ? review.user?.name || "Customer"
+                      : "Customer"}
+                  </h3>
+                  <span className="review-rating-number">
+                    {review.rating} ★
+                  </span>
+                </div>
+
+                {review.comment ? (
+                  <p>{review.comment}</p>
+                ) : (
+                  <p className="page-sub-note">No comment added.</p>
+                )}
+
+                {review.imageUrl && (
+                  <img
+                    src={review.imageUrl}
+                    alt="Review"
+                    className="review-image"
+                  />
+                )}
               </div>
             ))}
           </div>

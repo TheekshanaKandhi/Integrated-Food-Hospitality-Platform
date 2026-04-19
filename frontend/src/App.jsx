@@ -57,6 +57,12 @@ function App() {
     return userEmail.charAt(0).toUpperCase();
   };
 
+  const showBackButton =
+    location.pathname !== "/" &&
+    location.pathname !== "/login" &&
+    location.pathname !== "/register" &&
+    location.pathname !== "/admin-login";
+
   return (
     <div className="app-container">
       <header className="official-header">
@@ -128,6 +134,14 @@ function App() {
       </nav>
 
       <main className="page-content official-page-width">
+        {showBackButton && (
+          <div className="back-nav-row">
+            <button className="back-nav-btn" onClick={() => navigate(-1)}>
+              ← Back
+            </button>
+          </div>
+        )}
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

@@ -1,4 +1,5 @@
 const Review = require("../models/Review");
+const Order = require("../models/Order");
 const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
 
@@ -11,7 +12,6 @@ const uploadToCloudinary = (fileBuffer, folderName) => {
         resolve(result);
       }
     );
-
     streamifier.createReadStream(fileBuffer).pipe(stream);
   });
 };
@@ -20,8 +20,8 @@ const getReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
       .populate("user", "name email")
-      .populate("restaurant", "name cuisine address imageUrl")
-      .populate("order", "totalPrice status")
+      .populate("restaurant", "name cuisine address")
+      .populate("order", "_id")
       .sort({ createdAt: -1 });
 
     res.status(200).json(reviews);
@@ -32,46 +32,73 @@ const getReviews = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    console.log('Received req.body:', req.body);
-    console.log('Received req.file:', req.file ? 'File present' : 'No file');
+    const { user, order, restaurant, rating, comment } = req.body;
 
-    const { restaurant, order, rating, comment } = req.body;
-    // Normalize comment input so the schema default can apply safely
-    const commentValue = (comment !== undefined && comment !== null && String(comment).trim().length > 0)
-      ? String(comment).trim()
-      : "";
+    const deliveredOrder = await Order.findOne({
+      _id: order,
+      user,
+      restaurant,
+      status: "Delivered"
+    });
+
+    if (!deliveredOrder) {
+      return res.status(403).json({
+        message: "Only customers with delivered orders can add a review"
+      });
+    }
+
+    const alreadyReviewed = await Review.findOne({ order });
+
+    if (alreadyReviewed) {
+      return res.status(400).json({
+        message: "You have already submitted a review for this order"
+      });
+    }
 
     let imageUrl = "";
-
     if (req.file) {
       const uploadedImage = await uploadToCloudinary(req.file.buffer, "foodapp/reviews");
       imageUrl = uploadedImage.secure_url;
     }
 
-    const reviewData = {
-      user: req.user.id,
-      restaurant,
+    const review = await Review.create({
+      user,
       order,
+      restaurant,
       rating: Number(rating),
-      comment: commentValue,
+      comment: comment || "",
       imageUrl
-    };
-
-    console.log('Creating review with data:', reviewData);
-
-    const review = await Review.create(reviewData);
+    });
 
     res.status(201).json({
-      message: "Review submitted successfully!",
+      message: "Review added successfully",
       review
     });
   } catch (error) {
-    console.error("Review creation error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    await Review.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Review deleted successfully"
+    });
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 module.exports = {
   getReviews,
-  createReview
+  createReview,
+  deleteReview
 };

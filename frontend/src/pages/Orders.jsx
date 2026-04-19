@@ -29,10 +29,10 @@ function Orders() {
         });
 
         const allOrders = ordersRes.data;
-        const reversedOrders = [...allOrders].reverse();
-        setOrders(reversedOrders);
+        setOrders(allOrders);
+
         setStatusUpdates(
-          reversedOrders.reduce((acc, order) => {
+          allOrders.reduce((acc, order) => {
             acc[order._id] = order.status;
             return acc;
           }, {})
@@ -41,7 +41,7 @@ function Orders() {
         console.log("Error fetching orders:", error);
         setError(
           error.response?.data?.message ||
-          "Unable to fetch orders. Please refresh or log in again."
+            "Unable to fetch orders. Please refresh or log in again."
         );
       } finally {
         setLoading(false);
@@ -52,7 +52,7 @@ function Orders() {
   }, [userEmail, token]);
 
   const getStep = (status) => {
-    switch (status.toLowerCase()) {
+    switch ((status || "").toLowerCase()) {
       case "placed":
         return 1;
       case "confirmed":
@@ -121,11 +121,18 @@ function Orders() {
       );
 
       const updatedOrder = response.data.order;
+
       setOrders((currentOrders) =>
         currentOrders.map((order) =>
           order._id === updatedOrder._id ? updatedOrder : order
         )
       );
+
+      setStatusUpdates((current) => ({
+        ...current,
+        [orderId]: updatedOrder.status
+      }));
+
       setError("");
     } catch (error) {
       console.log("Error updating order status:", error);
@@ -137,6 +144,9 @@ function Orders() {
   };
 
   const handleAdminDeleteOrder = async (orderId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmDelete) return;
+
     try {
       await axios.delete(`http://127.0.0.1:5000/api/orders/${orderId}`, {
         headers: {
@@ -147,6 +157,7 @@ function Orders() {
       setOrders((currentOrders) =>
         currentOrders.filter((order) => order._id !== orderId)
       );
+
       setError("");
     } catch (error) {
       console.log("Error deleting order:", error);
@@ -162,20 +173,20 @@ function Orders() {
   }
 
   return (
-    <div>
-      <h2>Orders</h2>
-      <p>
-        {userRole === "admin"
-          ? "Track all customer orders and their current delivery status."
-          : "Track your order history and delivery status."
-        }
-      </p>
-      <p className="page-sub-note">
-        {userRole === "admin"
-          ? "Follow order progress, item details, and delivery status updates."
-          : "Monitor your order progress and download invoices."
-        }
-      </p>
+    <div className="orders-page">
+      <div className="orders-page-header">
+        <h2>Orders</h2>
+        <p>
+          {userRole === "admin"
+            ? "Track all customer orders and their current delivery status."
+            : "Track your order history and delivery status."}
+        </p>
+        <p className="page-sub-note">
+          {userRole === "admin"
+            ? "Follow order progress, item details, and delivery status updates."
+            : "Monitor your order progress and download invoices."}
+        </p>
+      </div>
 
       {error ? (
         <p className="error-message">{error}</p>
@@ -189,15 +200,14 @@ function Orders() {
             return (
               <div className="order-card" key={order._id}>
                 <div className="order-top">
-                    <h3>{order.restaurant?.name || "Restaurant"}</h3>
-                    <span
-                      className={`order-status ${order.status.toLowerCase()}`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
+                  <h3>{order.restaurant?.name || "Restaurant"}</h3>
+                  <span className={`order-status ${String(order.status).toLowerCase()}`}>
+                    {order.status}
+                  </span>
+                </div>
 
-                  <p><strong>Customer:</strong> {order.customerName}</p>
+                <div className="order-meta">
+                  <p><strong>Customer:</strong> {order.customerName || order.user?.name || "Customer"}</p>
                   <p><strong>Total:</strong> ₹{order.totalPrice}</p>
                   {userRole === "admin" && (
                     <p><strong>Order ID:</strong> {order._id}</p>
@@ -205,85 +215,83 @@ function Orders() {
                   <p><strong>Ordered on:</strong> {new Date(order.createdAt || Date.now()).toLocaleString()}</p>
                   <p><strong>Invoice No:</strong> {order.invoiceNumber}</p>
                   <p><strong>Payment:</strong> {order.paymentMethod} - {order.paymentStatus}</p>
+                </div>
 
-                  <div className="order-progress">
-                    <div className={`progress-step ${currentStep >= 1 ? "active" : ""}`}>Placed</div>
-                    <div className={`progress-step ${currentStep >= 2 ? "active" : ""}`}>Confirmed</div>
-                    <div className={`progress-step ${currentStep >= 3 ? "active" : ""}`}>Preparing</div>
-                    <div className={`progress-step ${currentStep >= 4 ? "active" : ""}`}>Delivered</div>
-                  </div>
+                <div className="order-progress">
+                  <div className={`progress-step ${currentStep >= 1 ? "active" : ""}`}>Placed</div>
+                  <div className={`progress-step ${currentStep >= 2 ? "active" : ""}`}>Confirmed</div>
+                  <div className={`progress-step ${currentStep >= 3 ? "active" : ""}`}>Preparing</div>
+                  <div className={`progress-step ${currentStep >= 4 ? "active" : ""}`}>Delivered</div>
+                </div>
 
-                  {userRole === "admin" && (
-                    <div className="admin-status-control">
-                      <label htmlFor={`status-${order._id}`}>Update Status</label>
-                      <div className="admin-status-select-row">
-                        <select
-                          id={`status-${order._id}`}
-                          value={statusUpdates[order._id] || order.status}
-                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                        >
-                          {statusOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          className="secondary-cta"
-                          onClick={() => handleAdminStatusUpdate(order._id)}
-                          disabled={statusUpdates[order._id] === order.status}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="order-items">
-                    <h4>Items</h4>
-                    {order.items && order.items.length > 0 ? (
-                      order.items.map((item) => (
-                        <p key={item._id}>
-                          {item.menuItem?.name || "Menu Item"} × {item.quantity}
-                        </p>
-                      ))
-                    ) : (
-                      <p>No items found</p>
-                    )}
-                  </div>
-
-                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "16px", alignItems: "center" }}>
-                    <button
-                      className="invoice-btn"
-                      onClick={() =>
-                        handleDownloadInvoice(order._id, order.invoiceNumber)
-                      }
-                    >
-                      Download Invoice
-                    </button>
-
-                    {userRole === "admin" && (
-                      <button
-                        className="delete-order-btn"
-                        type="button"
-                        title="Delete order"
-                        onClick={() => handleAdminDeleteOrder(order._id)}
-                        style={{ background: "#ef4444", color: "white" }}
+                {userRole === "admin" && (
+                  <div className="admin-status-control">
+                    <label htmlFor={`status-${order._id}`}>Update Status</label>
+                    <div className="admin-status-select-row">
+                      <select
+                        id={`status-${order._id}`}
+                        value={statusUpdates[order._id] || order.status}
+                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
                       >
-                        🗑️
-                      </button>
-                    )}
+                        {statusOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
 
-                    {userRole !== "admin" && order.status.toLowerCase() === "delivered" && (
                       <button
                         className="secondary-cta"
-                        onClick={() => navigate(`/add-review?order=${order._id}`)}
-                        style={{ background: "#10b981", color: "white" }}
+                        onClick={() => handleAdminStatusUpdate(order._id)}
+                        disabled={statusUpdates[order._id] === order.status}
                       >
-                        Write Review
+                        Save
                       </button>
-                    )}
+                    </div>
                   </div>
+                )}
+
+                <div className="order-items">
+                  <h4>Items</h4>
+                  {order.items && order.items.length > 0 ? (
+                    order.items.map((item) => (
+                      <p key={item._id}>
+                        {item.menuItem?.name || "Menu Item"} × {item.quantity}
+                      </p>
+                    ))
+                  ) : (
+                    <p>No items found</p>
+                  )}
+                </div>
+
+                <div className="order-action-row">
+  <button
+    className="invoice-btn"
+    onClick={() => handleDownloadInvoice(order._id, order.invoiceNumber)}
+  >
+    Download Invoice
+  </button>
+
+  {userRole === "admin" ? (
+    <button
+      className="icon-btn delete-btn"
+      type="button"
+      title="Delete Order"
+      onClick={() => handleAdminDeleteOrder(order._id)}
+    >
+      🗑
+    </button>
+  ) : String(order.status).toLowerCase() === "delivered" ? (
+    <button
+      className="secondary-cta"
+      onClick={() => navigate(`/add-review?order=${order._id}`)}
+    >
+      Write Review
+    </button>
+  ) : (
+    <div></div>
+  )}
+</div>
               </div>
             );
           })}

@@ -42,14 +42,9 @@ const placeOrder = async (req, res) => {
 
 const getOrders = async (req, res) => {
   try {
-    console.log("getOrders called");
-    console.log("req.user:", req.user);
-
     let orders;
 
-    // If user is admin, show all orders
     if (req.user && req.user.role === "admin") {
-      console.log("User is admin, showing all orders");
       orders = await Order.find()
         .populate("user", "name email")
         .populate({
@@ -61,10 +56,9 @@ const getOrders = async (req, res) => {
           path: "items.menuItem",
           select: "name price category imageUrl",
           model: "MenuItem"
-        });
+        })
+        .sort({ createdAt: -1 });
     } else {
-      // For regular users, show only their orders
-      console.log("User is customer, showing their orders for user ID:", req.user.id);
       orders = await Order.find({ user: req.user.id })
         .populate("user", "name email")
         .populate({
@@ -76,13 +70,12 @@ const getOrders = async (req, res) => {
           path: "items.menuItem",
           select: "name price category imageUrl",
           model: "MenuItem"
-        });
+        })
+        .sort({ createdAt: -1 });
     }
 
-    console.log("Found orders:", orders.length);
     res.status(200).json(orders);
   } catch (error) {
-    console.log("Error in getOrders:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -93,6 +86,7 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const normalizedStatus = String(status || "").trim().toLowerCase();
+
     const mappedStatus = validStatuses.find(
       (valid) => valid.toLowerCase() === normalizedStatus
     );
@@ -107,7 +101,18 @@ const updateOrderStatus = async (req, res) => {
       req.params.id,
       { status: mappedStatus },
       { new: true }
-    );
+    )
+      .populate("user", "name email")
+      .populate({
+        path: "restaurant",
+        select: "name cuisine address",
+        model: "Restaurant"
+      })
+      .populate({
+        path: "items.menuItem",
+        select: "name price category imageUrl",
+        model: "MenuItem"
+      });
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -130,9 +135,11 @@ const deleteOrder = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    await order.remove();
+    await Order.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: "Order deleted successfully" });
+    res.status(200).json({
+      message: "Order deleted successfully"
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -148,10 +155,6 @@ const drawRoundedBox = (doc, x, y, w, h, radius = 8, fill = null, stroke = "#D1D
     doc.roundedRect(x, y, w, h, radius).stroke(stroke);
   }
   doc.restore();
-};
-
-const drawText = (doc, text, x, y, options = {}) => {
-  doc.text(text, x, y, options);
 };
 
 const downloadInvoice = async (req, res) => {
@@ -205,19 +208,11 @@ const downloadInvoice = async (req, res) => {
     const paymentBadgeBg = order.paymentStatus === "Paid" ? greenBg : amberBg;
     const paymentBadgeText = order.paymentStatus === "Paid" ? green : amber;
 
-    // Page border
     drawRoundedBox(doc, 18, 18, 559, 805, 10, null, "#E5E7EB");
-
-    // Header band
     drawRoundedBox(doc, 30, 30, 535, 95, 12, blue, blue);
 
-    // Logo badge
     drawRoundedBox(doc, 45, 45, 64, 64, 12, "#FFFFFF", "#FFFFFF");
-    doc
-      .fillColor(blueDark)
-      .font("Helvetica-Bold")
-      .fontSize(16)
-      .text("FD", 66, 67);
+    doc.fillColor(blueDark).font("Helvetica-Bold").fontSize(16).text("FD", 66, 67);
 
     doc
       .fillColor("#FFFFFF")
@@ -238,21 +233,11 @@ const downloadInvoice = async (req, res) => {
         align: "right"
       });
 
-    // Left / right cards
     drawRoundedBox(doc, 30, 140, 260, 120, 10, "#FFFFFF", border);
     drawRoundedBox(doc, 305, 140, 260, 120, 10, "#FFFFFF", border);
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Billing Address", 45, 156);
-
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text(safeText(order.customerName), 45, 180);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Billing Address", 45, 156);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text(safeText(order.customerName), 45, 180);
 
     doc
       .fillColor(muted)
@@ -263,11 +248,7 @@ const downloadInvoice = async (req, res) => {
         width: 225
       });
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Invoice Details", 320, 156);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Invoice Details", 320, 156);
 
     doc
       .fillColor(muted)
@@ -278,20 +259,10 @@ const downloadInvoice = async (req, res) => {
       .text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`, 320, 216)
       .text(`Invoice Time: ${new Date(order.createdAt).toLocaleTimeString()}`, 320, 234);
 
-    // Restaurant block
     drawRoundedBox(doc, 30, 275, 535, 78, 10, light, border);
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Restaurant Information", 45, 292);
-
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text(safeText(order.restaurant?.name), 45, 314);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Restaurant Information", 45, 292);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text(safeText(order.restaurant?.name), 45, 314);
 
     doc
       .fillColor(muted)
@@ -302,14 +273,8 @@ const downloadInvoice = async (req, res) => {
         width: 460
       });
 
-    // Table title
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Order Items", 30, 372);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Order Items", 30, 372);
 
-    // Table box
     const tableX = 30;
     const tableY = 390;
     const tableW = 535;
@@ -361,27 +326,17 @@ const downloadInvoice = async (req, res) => {
       rowY += rowH;
     });
 
-    // vertical table lines
     const tableBottom = rowY;
     [240, 345, 400, 480].forEach((x) => {
-      doc
-        .strokeColor(border)
-        .moveTo(x, tableY)
-        .lineTo(x, tableBottom)
-        .stroke();
+      doc.strokeColor(border).moveTo(x, tableY).lineTo(x, tableBottom).stroke();
     });
 
-    // Payment & totals block
     const summaryTop = tableBottom + 22;
 
     drawRoundedBox(doc, 30, summaryTop, 255, 155, 10, "#FFFFFF", border);
     drawRoundedBox(doc, 310, summaryTop, 255, 155, 10, "#FFFFFF", border);
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Payment Information", 45, summaryTop + 15);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Payment Information", 45, summaryTop + 15);
 
     doc
       .fillColor(muted)
@@ -401,11 +356,7 @@ const downloadInvoice = async (req, res) => {
         align: "center"
       });
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Amount Summary", 325, summaryTop + 15);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Amount Summary", 325, summaryTop + 15);
 
     doc
       .fillColor(muted)
@@ -413,13 +364,10 @@ const downloadInvoice = async (req, res) => {
       .fontSize(10)
       .text("Subtotal", 325, summaryTop + 40)
       .text(`₹${subtotal}`, 470, summaryTop + 40, { width: 70, align: "right" })
-
       .text("Delivery Fee", 325, summaryTop + 62)
       .text(`₹${deliveryFee}`, 470, summaryTop + 62, { width: 70, align: "right" })
-
       .text("Taxable Amount", 325, summaryTop + 84)
       .text(`₹${taxableAmount}`, 470, summaryTop + 84, { width: 70, align: "right" })
-
       .text("Tax (5%)", 325, summaryTop + 106)
       .text(`₹${taxAmount}`, 470, summaryTop + 106, { width: 70, align: "right" });
 
@@ -431,16 +379,11 @@ const downloadInvoice = async (req, res) => {
       .text("Grand Total", 338, summaryTop + 133)
       .text(`₹${grandTotal}`, 470, summaryTop + 133, { width: 65, align: "right" });
 
-    // Tax / declaration / signature block
     const footerTop = summaryTop + 172;
 
     drawRoundedBox(doc, 30, footerTop, 535, 110, 10, "#FFFFFF", border);
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(11)
-      .text("Tax & Policy Information", 45, footerTop + 15);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(11).text("Tax & Policy Information", 45, footerTop + 15);
 
     doc
       .fillColor(muted)
@@ -451,13 +394,8 @@ const downloadInvoice = async (req, res) => {
       .text("• Products and services are subject to restaurant and platform refund/cancellation terms.", 45, footerTop + 70)
       .text("• For support, contact: support@foodapp.com", 45, footerTop + 86);
 
-    doc
-      .fillColor(dark)
-      .font("Helvetica-Bold")
-      .fontSize(10)
-      .text("Authorized Signatory", 410, footerTop + 82);
+    doc.fillColor(dark).font("Helvetica-Bold").fontSize(10).text("Authorized Signatory", 410, footerTop + 82);
 
-    // Bottom footer strip
     drawRoundedBox(doc, 30, 792, 535, 18, 6, grayLight, grayLight);
     doc
       .fillColor("#6B7280")

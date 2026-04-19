@@ -7,14 +7,15 @@ const reviewSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
-    restaurant: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Restaurant",
-      required: true
-    },
     order: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
+      required: true,
+      unique: true
+    },
+    restaurant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
       required: true
     },
     rating: {
@@ -23,8 +24,6 @@ const reviewSchema = new mongoose.Schema(
     },
     comment: {
       type: String,
-      trim: true,
-      required: false,
       default: ""
     },
     imageUrl: {

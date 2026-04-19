@@ -1,94 +1,115 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Home() {
-  const [counts, setCounts] = useState({
-    restaurants: 0,
-    menu: 0,
-    orders: 0,
-    reviews: 0
-  });
   const [restaurants, setRestaurants] = useState([]);
-  const [allRestaurants, setAllRestaurants] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
-  const [heroSearch, setHeroSearch] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [restaurantsRes, menuRes, ordersRes, reviewsRes] = await Promise.all([
-          axios.get("http://127.0.0.1:5000/api/restaurants"),
-          axios.get("http://127.0.0.1:5000/api/menu"),
-          axios.get("http://127.0.0.1:5000/api/orders", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }),
-          axios.get("http://127.0.0.1:5000/api/reviews")
-        ]);
-
-        setCounts({
-          restaurants: restaurantsRes.data.length,
-          menu: menuRes.data.length,
-          orders: ordersRes.data.length,
-          reviews: reviewsRes.data.length
-        });
-
-        setAllRestaurants(restaurantsRes.data);
-        setRestaurants(restaurantsRes.data.slice(0, 6));
-        setMenuItems(menuRes.data);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchHomeData();
   }, []);
+
+  const fetchHomeData = async () => {
+    try {
+      const requests = [
+        axios.get("http://127.0.0.1:5000/api/restaurants"),
+        axios.get("http://127.0.0.1:5000/api/menu")
+      ];
+
+      if (token) {
+        requests.push(
+          axios.get("http://127.0.0.1:5000/api/orders", {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get("http://127.0.0.1:5000/api/reviews", {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        );
+      }
+
+      const responses = await Promise.all(requests);
+
+      const restaurantsData = Array.isArray(responses[0].data) ? responses[0].data : [];
+      const menuData = Array.isArray(responses[1].data) ? responses[1].data : [];
+      const ordersData = token && Array.isArray(responses[2]?.data) ? responses[2].data : [];
+      const reviewsData = token && Array.isArray(responses[3]?.data) ? responses[3].data : [];
+
+      setRestaurants(restaurantsData);
+      setMenuItems(menuData);
+      setOrders(ordersData);
+      setReviews(reviewsData);
+      setLoading(false);
+    } catch (error) {
+      console.log("Home fetch error:", error);
+      setLoading(false);
+    }
+  };
+
+  const filteredRestaurants = useMemo(() => {
+    return restaurants.filter((restaurant) => {
+      const value = searchTerm.toLowerCase();
+      return (
+        restaurant.name?.toLowerCase().includes(value) ||
+        restaurant.cuisine?.toLowerCase().includes(value) ||
+        restaurant.address?.toLowerCase().includes(value)
+      );
+    });
+  }, [restaurants, searchTerm]);
+
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      const value = searchTerm.toLowerCase();
+      return (
+        item.name?.toLowerCase().includes(value) ||
+        item.category?.toLowerCase().includes(value) ||
+        item.restaurant?.name?.toLowerCase().includes(value)
+      );
+    });
+  }, [menuItems, searchTerm]);
+
+  const featuredRestaurants = searchTerm ? filteredRestaurants : restaurants.slice(0, 4);
+  const featuredMenuItems = searchTerm ? filteredMenuItems : menuItems.slice(0, 4);
+
+  const handleSearch = () => {
+    const resultsSection = document.getElementById("home-search-results");
+    if (resultsSection) {
+      resultsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const getRestaurantAverageRating = (restaurantId) => {
+    const restaurantReviews = reviews.filter((review) => {
+      const reviewRestaurantId =
+        typeof review.restaurant === "object" ? review.restaurant._id : review.restaurant;
+      return String(reviewRestaurantId) === String(restaurantId);
+    });
+
+    if (!restaurantReviews.length) return null;
+
+    const total = restaurantReviews.reduce(
+      (sum, review) => sum + Number(review.rating || 0),
+      0
+    );
+
+    return (total / restaurantReviews.length).toFixed(1);
+  };
 
   const fallbackRestaurantImage =
     "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80";
 
-  const handleHeroSearch = () => {
-    if (!heroSearch.trim()) return;
-
-    const search = heroSearch.trim().toLowerCase();
-
-    // Check if search matches any restaurant names or cuisines
-    const matchingRestaurants = allRestaurants.filter(r =>
-      r.name.toLowerCase().includes(search) ||
-      r.cuisine.toLowerCase().includes(search)
-    );
-
-    // Check if search matches any menu items
-    const matchingMenuItems = menuItems.filter(item =>
-      item.name.toLowerCase().includes(search) ||
-      item.category.toLowerCase().includes(search) ||
-      item.restaurant.name.toLowerCase().includes(search)
-    );
-
-    // If more restaurants match than menu items, or if restaurants match and no menu items, go to restaurants
-    if (matchingRestaurants.length > matchingMenuItems.length || (matchingRestaurants.length > 0 && matchingMenuItems.length === 0)) {
-      navigate(`/restaurants?search=${encodeURIComponent(heroSearch.trim())}`);
-    } else {
-      // Otherwise, go to menu search
-      navigate(`/menu?search=${encodeURIComponent(heroSearch.trim())}`);
-    }
-  };
-
-  const handleHeroKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleHeroSearch();
-    }
-  };
+  const fallbackMenuImage =
+    "https://images.unsplash.com/photo-1563379091339-03246963d29a?auto=format&fit=crop&w=900&q=80";
 
   if (loading) {
-    return <div className="loading-state">Loading home...</div>;
+    return <div className="loading-state">Loading home page...</div>;
   }
 
   return (
@@ -106,11 +127,10 @@ function Home() {
             <input
               type="text"
               placeholder="Search restaurant, cuisine or dish"
-              value={heroSearch}
-              onChange={(e) => setHeroSearch(e.target.value)}
-              onKeyDown={handleHeroKeyDown}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button onClick={handleHeroSearch}>Search</button>
+            <button onClick={handleSearch}>Search</button>
           </div>
 
           <div className="official-hero-actions">
@@ -124,59 +144,138 @@ function Home() {
         <div className="official-hero-right">
           <img
             src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80"
-            alt="Food ordering"
+            alt="Food Ordering"
           />
         </div>
       </section>
 
       <section className="official-stats-section">
         <div className="official-stat-box">
-          <h3>{counts.restaurants}</h3>
+          <h3>{restaurants.length}</h3>
           <p>Restaurants</p>
         </div>
         <div className="official-stat-box">
-          <h3>{counts.menu}</h3>
+          <h3>{menuItems.length}</h3>
           <p>Menu Items</p>
         </div>
         <div className="official-stat-box">
-          <h3>{counts.orders}</h3>
+          <h3>{orders.length}</h3>
           <p>Orders</p>
         </div>
         <div className="official-stat-box">
-          <h3>{counts.reviews}</h3>
+          <h3>{reviews.length}</h3>
           <p>Reviews</p>
         </div>
+      </section>
+
+      <section className="official-section-block" id="home-search-results">
+        <div className="section-heading-row">
+          <div>
+            <h3>{searchTerm ? "Matching Restaurants" : "Featured Restaurants"}</h3>
+            <p>
+              {searchTerm
+                ? "Restaurants matching your search."
+                : "Selected restaurants available on the platform."}
+            </p>
+          </div>
+          <button className="section-link-btn" onClick={() => navigate("/restaurants")}>
+            View All
+          </button>
+        </div>
+
+        {featuredRestaurants.length === 0 ? (
+          <p className="empty-state">No matching restaurants found.</p>
+        ) : (
+          <div className="official-card-grid restaurant-uniform-grid">
+            {featuredRestaurants.map((restaurant) => {
+              const avgRating = getRestaurantAverageRating(restaurant._id);
+
+              return (
+                <div
+                  className="official-restaurant-card restaurant-uniform-card"
+                  key={restaurant._id}
+                >
+                  <img
+                    src={restaurant.imageUrl || fallbackRestaurantImage}
+                    alt={restaurant.name}
+                    onClick={() => navigate(`/restaurants/${restaurant._id}`)}
+                    style={{ cursor: "pointer" }}
+                  />
+
+                  <div className="official-card-body restaurant-uniform-body">
+                    <div className="official-card-top restaurant-uniform-top">
+                      <h4
+                        className="restaurant-name-clamp"
+                        onClick={() => navigate(`/restaurants/${restaurant._id}`)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {restaurant.name}
+                      </h4>
+
+                      <span className="restaurant-rating-fixed">
+                        {avgRating ? `${avgRating} ★` : "New"}
+                      </span>
+                    </div>
+
+                    <p className="restaurant-cuisine-clamp">{restaurant.cuisine}</p>
+                    <p className="official-address-text restaurant-address-clamp">
+                      {restaurant.address}
+                    </p>
+
+                    <div className="restaurant-card-actions restaurant-actions-bottom">
+                      <button onClick={() => navigate(`/restaurants/${restaurant._id}`)}>
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className="official-section-block">
         <div className="section-heading-row">
           <div>
-            <h3>Featured Restaurants</h3>
-            <p>Selected restaurants available on the platform.</p>
+            <h3>{searchTerm ? "Matching Menu Items" : "Featured Menu Items"}</h3>
+            <p>
+              {searchTerm
+                ? "Menu items matching your search."
+                : "Popular menu items available across restaurants."}
+            </p>
           </div>
-          <Link to="/restaurants" className="section-link-btn">
+          <button className="section-link-btn" onClick={() => navigate("/menu")}>
             View All
-          </Link>
+          </button>
         </div>
 
-        <div className="official-card-grid">
-          {restaurants.map((restaurant) => (
-            <Link to={`/restaurants/${restaurant._id}`} className="official-restaurant-card" key={restaurant._id}>
-              <img
-                src={restaurant.imageUrl || fallbackRestaurantImage}
-                alt={restaurant.name}
-              />
-              <div className="official-card-body">
-                <div className="official-card-top">
-                  <h4>{restaurant.name}</h4>
-                  <span>⭐ {restaurant.rating || 4.2}</span>
+        {featuredMenuItems.length === 0 ? (
+          <p className="empty-state">No matching menu items found.</p>
+        ) : (
+          <div className="official-card-grid menu-uniform-grid">
+            {featuredMenuItems.map((item) => (
+              <div className="official-menu-card menu-uniform-card" key={item._id}>
+                <img src={item.imageUrl || fallbackMenuImage} alt={item.name} />
+                <div className="official-card-body menu-uniform-body">
+                  <div className="official-card-top menu-uniform-top">
+                    <h4 className="menu-name-clamp">{item.name}</h4>
+                    <span className="menu-price-fixed">₹{item.price}</span>
+                  </div>
+
+                  <p className="menu-category-clamp">{item.category}</p>
+                  <p className="official-address-text menu-restaurant-clamp">
+                    {item.restaurant?.name || "Restaurant"}
+                  </p>
+
+                  <div className="restaurant-card-actions menu-actions-bottom">
+                    <button onClick={() => navigate("/menu")}>View Menu</button>
+                  </div>
                 </div>
-                <p>{restaurant.cuisine}</p>
-                <p className="official-address-text">{restaurant.address}</p>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
